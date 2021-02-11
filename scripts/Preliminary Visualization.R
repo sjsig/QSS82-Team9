@@ -16,16 +16,23 @@ library(extrafont)
 
 ## reading in csv file
 unemp <- read_csv("OECD_Unemployment.csv")
-head(unemp)
+gdp <- read_csv("OECD_Quarterly_GDP.csv")
 
 ## changing csv character formatted dates to date objects
 unemp$TIME <- as.Date(paste(unemp$TIME,"-01",sep=""), format = "%Y-%m-%d")
 
-# standardizes different EU labels pre and post-BREXIT
+## cleaning date column
+gdp$TIME <- as.yearqtr(gsub( "Q", "", gdp$TIME))
+
+## standardizes different EU labels pre and post-BREXIT
 unemp$LOCATION <- revalue(unemp$LOCATION, c("EU27_2020"="EU", "EU28"="EU"))
+gdp$LOCATION <- revalue(gdp$LOCATION, c("EU27_2020"="EU"))
 
 ## create a secondary version of the data that only contains economic groupings of countries
 groupedUnemp <- unemp %>%
+  filter(LOCATION == c("OECD", "EU", "G-7"))
+
+grouped_gdp <- gdp %>%
   filter(LOCATION == c("OECD", "EU", "G-7"))
 
 ## theme creation for future use - ONLY run font import if you need to take an image of a plot
@@ -42,23 +49,30 @@ t9theme <- theme(text = element_text(family = "Times New Roman"), legend.title =
 ## overall plot and sub-grouping plot
 ggplot(unemp, aes(x = TIME, y = Value, color = LOCATION)) +
   geom_line() +
-  labs(x = "Point in Time (Year-Month)", y = "Unemployment Rate (Percent)", title = "Unemployment Rate Across the OECD Countries", 
+  labs(x = "Date", y = "Unemployment Rate (Percent)", title = "Unemployment Rate Across OECD Countries", 
        subtitle = "Tracking unemployment in OECD countries from late 2018 through 2020") +
   t9theme
 
 ggplot(groupedUnemp, aes(x = TIME, y = Value, color = LOCATION)) +
   geom_line() +
   geom_point() +
-  labs(x = "Point in Time (Year-Month-Day)", y = "Unemployment Rate (Percent)", title = "Unemployment Rate Across Major Economic Groupings",
+  labs(x = "Date", y = "Unemployment Rate (Percent)", title = "Unemployment Rate Across Major Economic Groupings",
        subtitle = "Tracking unemployment in the G-7, EU, and OECD on a composite level from late 2018 through 2020") +
   scale_color_manual(values = c("#fbdf6c", "#d03d35", "#437ab8")) +
   scale_x_date(date_breaks = "3 months") +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)) +
   t9theme
 
+ggplot(gdp, aes(x = TIME, y = Value, color = LOCATION)) +
+  geom_line() +
+  scale_x_yearqtr(format = "%Y-Q%q") +
+  labs(x = "Quarter", y = "Change in Quarterly GDP (Percent)", title = "GDP Percent Change from Preceding Quarter Across OECD Countries") +
+  t9theme
 
-
-
-
-## unemp$TIME <- as.Date(df$TIME, “%Y-%m”)
-## unemp$TIME <- as.Date(paste(unemp$TIME,"-01",sep=""), format = "%Y-%m-%d")
+ggplot(grouped_gdp, aes(x = TIME, y = Value, color = LOCATION)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values = c("#fbdf6c", "#d03d35", "#437ab8")) +
+  scale_x_yearqtr(format = "%Y-Q%q") +
+  labs(x = "Quarter", y = "Change in Quarterly GDP (Percent)", title = "GDP Percent Change from Preceding Quarter Across Major Economic Groupings") +
+  t9theme
