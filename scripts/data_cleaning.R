@@ -1,3 +1,4 @@
+
 library("rio")
 library(tidyverse)
 library(stringr)
@@ -8,10 +9,13 @@ library(readr)
 
 
 # You will have to change this depending on where youre working directory is
-setwd('/Users/joe/Documents/Joe 2020-2021/21W/QSS Project/QSS82-Team9')
+# setwd('/Users/joe/Documents/Joe 2020-2021/21W/QSS Project/QSS82-Team9')
 
 # Loads all file names into file array
 # If a file is not .csv, it converts it
+
+all_files[sapply(all_files, function(x) grepl("Stock", x, fixed=TRUE))]
+
 all_files <- list.files("./data/")
 files <- c()
 for (file in all_files){
@@ -29,7 +33,7 @@ for (file in all_files){
   }
 }
 
-
+stock_files <-files[sapply(files, function(x) grepl("Stock", x, fixed=TRUE))]
 
 # Country data
 
@@ -166,6 +170,7 @@ value_names <- list(
 )
 
 df <- data.frame(Country = character(), Date = character(), stringsAsFactors = TRUE)
+stock_data <- data.frame()
 
 for(file in files){
   base_name <- str_split(file, "[.]")[[1]][1]
@@ -179,7 +184,7 @@ for(file in files){
     # print(paste("You did not add the value column name(s) for", file))
   } else {
     print("reading")
-    data <- read.csv(file = paste("./data/", file, sep=""))
+    data <- read.csv(file = paste("./data/", file, sep=""), stringsAsFactors = FALSE)
     colnames(data)[which(names(data) == country_columns[base_name])] <- "Country"
     colnames(data)[which(names(data) == time_columns[base_name])] <- "Date"
     time_format <- time_formats[base_name]
@@ -199,16 +204,23 @@ for(file in files){
       variables <- unlist(value_variables[base_name], use.names=FALSE)
       variable_names <- unlist(value_names[base_name], use.names=FALSE)
     }
+    
     variables <- make.names(variables)
     data <- data[c("Country","Date",variables)]
     
     colnames(data) <- c("Country","Date",variable_names)
     
-    print(head(data))
-    df <- full_join(df, data, by = c("Country", "Date"), all = TRUE)
+    if (file %in% stock_files) {
+      print("here")
+      stock_data <- rbind(data, stock_data)
+    }
+    else {
+      df <- full_join(df, data, by = c("Country", "Date"), all = TRUE)
+    }
   }
 }
 
+df <- full_join(df, stock_data, by = c("Country", "Date"), all = TRUE)
 
 unique(df$Country)
 
