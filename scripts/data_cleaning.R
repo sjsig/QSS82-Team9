@@ -209,9 +209,15 @@ for(file in files){
   }
 }
 
+write.csv(df,"./data/all_data.csv", row.names = FALSE)
 
 unique(df$Country)
 
 # Not yet dealt with: oil_price_data, G20_stimulus_data
+
+# dates
+# cleaning 
+# stock data
+# percentage change calculations
 
  
