@@ -11,16 +11,14 @@ library(ggrepel)
 
 # Our DAG
 
-covid_dag <- dagify(economics ~ lockdown_efficacy + economic_relief + politics + other_econ,
-                    lockdown_efficacy ~ lockdown_policy + compliance,
-                    compliance ~ covid_rates + demographics + politics,
+covid_dag <- dagify(economics ~  compliance + economic_relief + politics + other_econ,
+                    compliance ~ covid_rates + demographics + politics + lockdown_policy,
                     economic_relief ~~ politics,
                     lockdown_policy ~ covid_rates + politics,
                     covid_rates ~ healthcare,
-                    healthcare ~ politics + vaccine + accessibility,
+                    healthcare ~ politics,
                          labels = c("economics" = "Economic\n Effects", 
                                     "other_econ" = "Other\n Economic\n Factors",
-                                    "lockdown_efficacy" = "Lockdown\n Efficacy",
                                     "lockdown_policy" = "Lockdown\n Policy",
                                     "compliance" = "Citizen\n Compliance",
                                     "oil_price" = "Oil Prices",
@@ -42,7 +40,7 @@ covid_dag <- dagify(economics ~ lockdown_efficacy + economic_relief + politics +
                                     "healthcare" = "Quality of\n Healthcare"
                                     ),
                         exposure ="lockdown_policy",
-                        latent = c("compliance", "lockdown_efficacy"),
+                        latent = c("compliance"),
                         outcome = "economics"
                    )
  
