@@ -103,8 +103,7 @@ data <- data %>%
   mutate(stringency_index_m7 = lag(stringency_index_m6)) %>%
   mutate(stringency_index_m8 = lag(stringency_index_m7)) %>%
   mutate(stringency_index_m9 = lag(stringency_index_m8)) %>%
-  mutate(stringency_index_m10 = lag(stringency_index_m9)) %>%
-  filter(Country == "ARG")
+  mutate(stringency_index_m10 = lag(stringency_index_m9))
   
 
 df <- merge(x = df, y = data, by = c("Country", "Date"), all = TRUE)
