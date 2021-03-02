@@ -1,20 +1,24 @@
 # Load packages -----------------------------------------------------------
 
 library(tidyverse)
+library( taRifx )
+
 
 # Load data  --------------------------------------------------------------
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
-unique(data$Country)
+data <- japply( data, which(sapply(data, typeof)=="integer"), as.double )
+
+colnames(data)
+types <- sapply(data, typeof)
+types_df <- data.frame(types) %>%
+  arrange(types)
 
 usa_data <- data %>%
-  filter(Country == "USA") %>%
-  filter(!is.na(Date)) %>%
-  arrange(Date) %>%
-  select(Date, stringency_index, stock_change, retail_and_recreation)
+  filter(Country == "USA")
 
-colnames(usa_data)
+cor(data)
 
 # Lockdown policy - stringency_index 
 # Citizen Compliance - retail_and_recreation, residential
@@ -28,9 +32,37 @@ colnames(usa_data)
 
 
 # OLS ---------------------------------------------------------------------
-fit <- lm(stock_change ~ stringency_index, data=usa_data)
+fit <- lm(stock_change ~ stringency_index +
+            stringency_index_m1 +
+            aged_65_older +
+            human_development_index +
+            median_age +
+            life_expectancy +
+            population_density +
+            extreme_poverty +
+            retail_and_recreation +
+            residential +
+            urban_pop +
+            rural_pop +
+            suburban_pop +
+            CCI +
+            one_yr_unemp_bene +
+            two_mth_umemp_bene +
+            six_mth_unemp_bene +
+            oil_price +
+            stimulus_spending_pct_gdp +
+            liquidity_support_pct_gdp +
+            health_stimulus_spending_pct_gdp +
+            agriculture +
+            industry +
+            manufacturing +
+            services +
+            maj_DPI +
+            frac_DPI, data=data)
+
 summary(fit) # show results
 
+# alias(fit)
 
 # Other analyses ----------------------------------------------------------
 
