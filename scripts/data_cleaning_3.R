@@ -304,7 +304,11 @@ data <- data %>%
   dplyr::rename(Country = X) %>%
   mutate(Country = countrycode(Country, origin = 'country.name', destination = 'iso3c'))%>%
   filter(Country %in% countries) %>%
-  select(Country, Agriculture, Industry, Manufacturing, Services)
+  mutate(agriculture = as.numeric(agriculture)) %>%
+  mutate(industry = as.numeric(industry)) %>%
+  mutate(manufacturing = as.numeric(manufacturing)) %>%
+  mutate(services = as.numeric(services)) %>%
+  select(Country, agriculture, industry, manufacturing, services)
 
 
 df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)

@@ -1,10 +1,24 @@
 # Load packages -----------------------------------------------------------
 
 library(tidyverse)
+library( taRifx )
+
 
 # Load data  --------------------------------------------------------------
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
+
+data <- japply( data, which(sapply(data, typeof)=="integer"), as.double )
+
+colnames(data)
+types <- sapply(data, typeof)
+types_df <- data.frame(types) %>%
+  arrange(types)
+
+usa_data <- data %>%
+  filter(Country == "USA")
+
+cor(data)
 
 # Lockdown policy - stringency_index 
 # Citizen Compliance - retail_and_recreation, residential
@@ -18,36 +32,37 @@ data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
 
 # OLS ---------------------------------------------------------------------
-fit <- lm(stock_change ~ stringency_index + 
+fit <- lm(stock_change ~ stringency_index +
             stringency_index_m1 +
-            aged_65_older + 
-            human_development_index + 
-            median_age + 
+            aged_65_older +
+            human_development_index +
+            median_age +
             life_expectancy +
             population_density +
             extreme_poverty +
             retail_and_recreation +
             residential +
-            rural_pop +
             urban_pop +
-            suburban_pop + 
-            CCI + 
+            rural_pop +
+            suburban_pop +
+            CCI +
             one_yr_unemp_bene +
             two_mth_umemp_bene +
-            six_mth_unemp_bene + 
-            oil_price + 
+            six_mth_unemp_bene +
+            oil_price +
             stimulus_spending_pct_gdp +
             liquidity_support_pct_gdp +
             health_stimulus_spending_pct_gdp +
-            Agriculture + 
-            Industry + 
-            Manufacturing + 
-            Services + 
-            maj_DPI + 
-            frac_DPI
-            , data=data)
+            agriculture +
+            industry +
+            manufacturing +
+            services +
+            maj_DPI +
+            frac_DPI, data=data)
+
 summary(fit) # show results
 
+# alias(fit)
 
 # Other analyses ----------------------------------------------------------
 
