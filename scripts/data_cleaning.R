@@ -57,8 +57,8 @@ stock_data <- stock_data %>%
   group_by(Country) %>%
   mutate(stock_change = Adj.Close/lag(Adj.Close) -1 )
 
-
 write.csv(stock_data,"./data/Stock_data.csv", row.names = FALSE)
+
 # Remove stock files from list of 
 files <- files[sapply(files, function(x) grepl("_(S|s)tock", x)) == FALSE]
 files <- files[files != "all_data.csv" & files != "Stock_data.csv"]
@@ -215,11 +215,27 @@ for(file in files){
   }
 }
 
+df2 <- df
+
+df2 <- df2 %>%
+  filter(Date >= "2019-01-01" & Date < "2021-01-01")
+
+
+
+
+
+
+
+
+
+
 write.csv(df,"./data/all_data.csv", row.names = FALSE)
 
 
 # Check data --------------------------------------------------------------
 unique(df$Country)
+df$stock_change
+unique(df$stock_change)
 
 # Not yet dealt with: oil_price_data, G20_stimulus_data, OECD_quarterly_gdp
 

@@ -11,7 +11,8 @@ unique(data$Country)
 usa_data <- data %>%
   filter(Country == "USA") %>%
   filter(!is.na(Date)) %>%
-  arrange(Date)
+  arrange(Date) %>%
+  select(Date, stringency_index, stock_change, retail_and_recreation)
 
 colnames(usa_data)
 
