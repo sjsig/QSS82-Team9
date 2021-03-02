@@ -1,6 +1,7 @@
 # Load Packages  ----------------------------------------------------------
 library(tidyverse)
 library(dplyr)
+library(countrycode)
 
 
 # Set working directory (if necessary) ------------------------------------
@@ -267,6 +268,22 @@ data <- data %>%
   dplyr::rename(stimulus_spending_pct_gdp = Total.Stimulus.Spending.Percent.GDP, liquidity_support_pct_gdp = Total.Liquidity.Support.Percent.GDP, health_stimulus_spending_pct_gdp = Total.Stimulus.Spending.in.Health.Sector.Percent.GDP) %>%
   filter(Country %in% countries) %>%
   select(Country,stimulus_spending_pct_gdp , liquidity_support_pct_gdp, health_stimulus_spending_pct_gdp)
+
+
+df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
+
+write.csv(df,"./data/all_data.csv", row.names = FALSE)
+
+
+# Economic composition ----------------------------------------------------
+
+data <- read.csv(file = './data/Econ_Composition.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  dplyr::rename(Country = X) %>%
+  mutate(Country = countrycode(Country, origin = 'country.name', destination = 'iso3c'))%>%
+  filter(Country %in% countries) %>%
+  select(Country, Agriculture, Industry, Manufacturing, Services)
 
 
 df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
