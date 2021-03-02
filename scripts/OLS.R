@@ -17,20 +17,6 @@ types <- sapply(data, typeof)
 types_df <- data.frame(types) %>%
   arrange(types)
 
-usa_data <- data %>%
-  filter(Country == "USA")
-
-
-# Lockdown policy - stringency_index 
-# Citizen Compliance - retail_and_recreation, residential
-# Country demographics - elderly_population/aged_65_older, pop_area + pop_distribution_for_area, population_density, life_expectancy, poverty_type + poverty_rate_for_type, human_development_index, median_age,     
-# Other economic factors - *oil_prices, *price_volatility, *economic_composition, BCI, (CCI?), CLI
-# Provided economic aid - financial_disincentive_type + financial_disincentives_to_work_for_type, unemployment_benefit_type + unemployment_benefits_for_type
-# Political factors - trust_in_gov, *political_stability_index, *civil_liberties
-# Economic effects - stock_change
-
-# Stimulus data 
-
 
 # OLS ---------------------------------------------------------------------
 fit <- lm(stock_change ~ stringency_index +
@@ -62,10 +48,21 @@ fit <- lm(stock_change ~ stringency_index +
             maj_DPI +
             frac_DPI, data=data)
 
-xtable(summary(fit)) # show results
+xtable(summary(fit))
 summary(fit)
 
 # alias(fit)
+
+
+
+# Lockdown policy - stringency_index 
+# Citizen Compliance - retail_and_recreation, residential
+# Country demographics - elderly_population/aged_65_older, pop_area + pop_distribution_for_area, population_density, life_expectancy, poverty_type + poverty_rate_for_type, human_development_index, median_age,     
+# Other economic factors - *oil_prices, *price_volatility, *economic_composition, BCI, (CCI?), CLI
+# Provided economic aid - financial_disincentive_type + financial_disincentives_to_work_for_type, unemployment_benefit_type + unemployment_benefits_for_type
+# Political factors - trust_in_gov, *political_stability_index, *civil_liberties
+# Economic effects - stock_change
+
 
 # Other analyses ----------------------------------------------------------
 
