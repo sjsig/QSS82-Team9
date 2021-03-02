@@ -2,7 +2,9 @@
 
 library(tidyverse)
 library( taRifx )
-
+library(car)
+library(xtable)
+library(stargazer)
 
 # Load data  --------------------------------------------------------------
 
@@ -18,7 +20,6 @@ types_df <- data.frame(types) %>%
 usa_data <- data %>%
   filter(Country == "USA")
 
-cor(data)
 
 # Lockdown policy - stringency_index 
 # Citizen Compliance - retail_and_recreation, residential
@@ -35,6 +36,7 @@ cor(data)
 fit <- lm(stock_change ~ stringency_index +
             stringency_index_m1 +
             aged_65_older +
+            covid_rate + 
             human_development_index +
             median_age +
             life_expectancy +
@@ -60,7 +62,8 @@ fit <- lm(stock_change ~ stringency_index +
             maj_DPI +
             frac_DPI, data=data)
 
-summary(fit) # show results
+xtable(summary(fit)) # show results
+summary(fit)
 
 # alias(fit)
 

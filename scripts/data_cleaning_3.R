@@ -32,20 +32,23 @@ for (file in all_files){
 
 
 # Create stock data file -------------------------------------------------
+
 stock_files <-files[sapply(files, function(x) grepl("_(S|s)tock", x))]
 stock_data <- data.frame(stringsAsFactors = TRUE)
 
 for(file in stock_files){
   country_data <- read.csv(file = paste("./data/", file, sep=""), stringsAsFactors = FALSE)
   # Add country column if not there
-  
   if(!("Country" %in% colnames(country_data))){
     country_code <- str_split(file, "_")[[1]][1]
-    country_data <- country_data %>% 
+    country_data <- country_data %>%
       mutate(Country = country_code)
   }
+  
   stock_data <- rbind(stock_data, country_data)
 }
+
+
 
 stock_data$Date <- as.Date(stock_data$Date, format = "%m/%d/%Y")
 stock_data$Adj.Close <- as.numeric(stock_data$Adj.Close)
@@ -53,23 +56,26 @@ stock_data$Adj.Close <- as.numeric(stock_data$Adj.Close)
 stock_data <- stock_data %>%
   group_by(Country) %>%
   mutate(stock_change = 100* (Adj.Close/lag(Adj.Close) -1 )) # %>%
-  # mutate(stock_change_m1 = lag(stock_change)) %>%
-  # mutate(stock_change_m2 = lag(stock_change_m1)) %>%
-  # mutate(stock_change_m3 = lag(stock_change_m2)) %>%
-  # mutate(stock_change_m4 = lag(stock_change_m3)) %>%
-  # mutate(stock_change_m5 = lag(stock_change_m4)) %>%
-  # mutate(stock_change_m6 = lag(stock_change_m5)) %>%
-  # mutate(stock_change_m7 = lag(stock_change_m6)) %>%
-  # mutate(stock_change_m8 = lag(stock_change_m7)) %>%
-  # mutate(stock_change_m9 = lag(stock_change_m8)) %>%
-  # mutate(stock_change_m10 = lag(stock_change_m9)) 
+#   # mutate(stock_change_m1 = lag(stock_change)) %>%
+#   # mutate(stock_change_m2 = lag(stock_change_m1)) %>%
+#   # mutate(stock_change_m3 = lag(stock_change_m2)) %>%
+#   # mutate(stock_change_m4 = lag(stock_change_m3)) %>%
+#   # mutate(stock_change_m5 = lag(stock_change_m4)) %>%
+#   # mutate(stock_change_m6 = lag(stock_change_m5)) %>%
+#   # mutate(stock_change_m7 = lag(stock_change_m6)) %>%
+#   # mutate(stock_change_m8 = lag(stock_change_m7)) %>%
+#   # mutate(stock_change_m9 = lag(stock_change_m8)) %>%
+#   # mutate(stock_change_m10 = lag(stock_change_m9))
+#
+summary(stock_data$stock_change)
 
 write.csv(stock_data,"./data/Stock_data.csv", row.names = FALSE)
 
-# Remove stock files from list of 
+# Remove stock files from list of
 files <- files[sapply(files, function(x) grepl("_(S|s)tock", x)) == FALSE]
 files <- files[files != "all_data.csv" & files != "Stock_data.csv"]
 files <- c(files, "Stock_data.csv")
+
 
 
 
@@ -88,10 +94,10 @@ countries <- c("ARG","AUS", "AUT", "BEL", "BRA", "CAN", "CHE", "CHN", "DEU", "ES
 data <- read.csv(file = './data/lockdown_and_covid_rate_data.csv', stringsAsFactors = FALSE)
 
 data <- data %>%
-  dplyr::rename(Country = iso_code, Date = date)%>%
+  dplyr::rename(Country = iso_code, Date = date, covid_rate = total_cases_per_million)%>%
   mutate(Date = as.Date(Date)) %>%
   filter(Country %in% countries) %>%
-  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty) %>%
+  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty, covid_rate) %>%
   group_by(Country) %>%
   arrange(Date) %>%
   mutate(stringency_index_m1 = lag(stringency_index)) %>%
@@ -119,6 +125,7 @@ df <- df %>%
 
 data <- read.csv(file = './data/Stock_data.csv', stringsAsFactors = FALSE)
 
+summary(data$Date)
 
 data <- data %>%
   filter(Country %in% countries) %>%
@@ -325,9 +332,20 @@ data <- data %>%
 
 df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
 
+summary(df$stock_change)
+
+df_2 <- df %>%
+  filter(is.na(stock_change)) %>%
+  arrange(Country, Date)
+
 
 # Save dataframe ----------------------------------------------------------
 
+test <- df %>%
+  filter(is.na(stock_change)) %>%
+  select(Country, Date, stock_change) %>%
+  group_by(Country) %>%
+  dplyr::summarise(total = n())
 
 write.csv(df,"./data/all_data.csv", row.names = FALSE)
 
