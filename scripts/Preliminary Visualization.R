@@ -13,6 +13,7 @@ library(stringr)
 library(plyr)
 library(readr)
 library(extrafont)
+library(zoo)
 
 ## reading in csv file
 unemp <- read_csv("OECD_Unemployment.csv")
@@ -63,6 +64,7 @@ ggplot(groupedUnemp, aes(x = TIME, y = Value, color = LOCATION)) +
   scale_y_continuous(limits = c(0, 9), breaks = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)) +
   t9theme
 
+
 ggplot(gdp, aes(x = TIME, y = Value, color = LOCATION)) +
   geom_line() +
   scale_x_yearqtr(format = "%Y-Q%q") +
@@ -76,6 +78,7 @@ ggplot(grouped_gdp, aes(x = TIME, y = Value, color = LOCATION)) +
   scale_x_yearqtr(format = "%Y-Q%q") +
   labs(x = "Quarter", y = "Change in Quarterly GDP (Percent)", title = "GDP Percent Change from Preceding Quarter Across Major Economic Groupings") +
   t9theme
+
 
 
 ## STOCK DATA
