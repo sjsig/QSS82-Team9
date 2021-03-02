@@ -52,7 +52,17 @@ stock_data$Adj.Close <- as.numeric(stock_data$Adj.Close)
 
 stock_data <- stock_data %>%
   group_by(Country) %>%
-  mutate(stock_change = 100* (Adj.Close/lag(Adj.Close) -1 ))
+  mutate(stock_change = 100* (Adj.Close/lag(Adj.Close) -1 )) %>%
+  mutate(stock_change_m1 = lag(stock_change)) %>%
+  mutate(stock_change_m2 = lag(stock_change_m1)) %>%
+  mutate(stock_change_m3 = lag(stock_change_m2)) %>%
+  mutate(stock_change_m4 = lag(stock_change_m3)) %>%
+  mutate(stock_change_m5 = lag(stock_change_m4)) %>%
+  mutate(stock_change_m6 = lag(stock_change_m5)) %>%
+  mutate(stock_change_m7 = lag(stock_change_m6)) %>%
+  mutate(stock_change_m8 = lag(stock_change_m7)) %>%
+  mutate(stock_change_m9 = lag(stock_change_m8)) %>%
+  mutate(stock_change_m10 = lag(stock_change_m9)) 
 
 write.csv(stock_data,"./data/Stock_data.csv", row.names = FALSE)
 
@@ -288,10 +298,21 @@ data <- data %>%
 
 df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
 
+
+# Political factors -------------------------------------------------------
+
+data <- read.csv(file = './data/dpi_political_variables.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  filter(Country %in% countries) %>%
+  select(Country, maj_DPI, frac_DPI)
+
+
+df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
+
 write.csv(df,"./data/all_data.csv", row.names = FALSE)
 
-
-# Other economic factors - *price_volatility, *economic_composition
+# Other economic factors - *price_volatility
 # Political factors -  *political_stability_index, *civil_liberties
 # and gdp
 # Stimulus data 
