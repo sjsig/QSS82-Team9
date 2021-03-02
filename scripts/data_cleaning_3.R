@@ -89,7 +89,8 @@ df <- merge(x = df, y = data, by = c("Country", "Date"), all = TRUE)
 df <- df %>%
   mutate(Day = format(Date, format = "%d")) %>%
   mutate(Month = format(Date, format = "%m")) %>%
-  mutate(Year = format(Date, format = "%Y"))
+  mutate(Year = format(Date, format = "%Y")) %>%
+  mutate(Quarter = ifelse(as.integer(Month) %in% c(1,2,3),1, ifelse(as.integer(Month) %in% c(4,5,6),2,ifelse(as.integer(Month) %in% c(7,8,9),3,ifelse(as.integer(Month) %in% c(10,11,12),4,NA)))))
 
 
 # Stock data --------------------------------------------------------------
@@ -187,23 +188,93 @@ df <- merge(x = df, y = data, by = c("Country", "Month", "Year"), all.x = TRUE)
 
 # Trust in government  ----------------------------------------------------
 
-data <- read.csv(file = './data/OECD_Trust_In_Government.csv', stringsAsFactors = FALSE)
+# data <- read.csv(file = './data/OECD_Trust_In_Government.csv', stringsAsFactors = FALSE)
+# 
+# data <- data %>%
+#   dplyr::rename(Country = LOCATION, trust_in_gov = Value) %>%
+#   filter(Country %in% countries) %>%
+#   filter(TIME == 2019) %>%
+#   select(Country, trust_in_gov)
+# 
+# 
+# df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
+
+
+# Unemployment benefits  ------------------------------------------------
+
+data <- read.csv(file = './data/OECD_Unemployment_Benefits.csv', stringsAsFactors = FALSE)
 
 data <- data %>%
-  dplyr::rename(Country = LOCATION, trust_in_gov = Value) %>%
+  spread(SUBJECT, Value) %>%
+  dplyr::rename(Country = LOCATION, Date = TIME, one_yr_unemp_bene = "1YEAR", two_mth_umemp_bene ="2MTH", two_yr_unemp_bene = "2YEAR", five_yr_unemp_bene = "5YEAR", six_mth_unemp_bene = "6MTH") %>%
+  filter(Date == 2019) %>%
   filter(Country %in% countries) %>%
-  filter(TIME == 2019) %>%
-  select(Country, trust_in_gov)
-
+  select(Country, one_yr_unemp_bene, two_mth_umemp_bene, two_yr_unemp_bene, five_yr_unemp_bene, six_mth_unemp_bene )
 
 df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
 
 
+# Oil prices --------------------------------------------------------------
+
+data <- read.csv(file = './data/oil_price_data.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  dplyr::rename(oil_price = WTI_spot_price) %>%
+  mutate(Date = as.Date(Date, format = "%m/%d/%y")) %>%
+  select(Date, oil_price)
+
+df <- merge(x = df, y = data, by = c("Date"), all.x = TRUE)
 
 
-# Other economic factors - oil_prices, *price_volatility, *economic_composition
-# Provided economic aid - financial_disincentive_type + financial_disincentives_to_work_for_type, unemployment_benefit_type + unemployment_benefits_for_type
-# Political factors - trust_in_gov, *political_stability_index, *civil_liberties
-#unemployment and gdp
+# Unemployment  -----------------------------------------------------------
 
+data <- read.csv(file = './data/OECD_Unemployment.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  dplyr::rename(Country = LOCATION, Date = TIME, unemployment = Value) %>%
+  filter(Country %in% countries) %>%
+  mutate(Date = as.Date(paste(Date,"-01",sep=""), format = "%Y-%m-%d")) %>%
+  mutate(Month = format(Date, format = "%m")) %>%
+  mutate(Year = format(Date, format = "%Y")) %>%
+  select(Country, Month, Year, unemployment)
+
+
+
+df <- merge(x = df, y = data, by = c("Country", "Month", "Year"), all.x = TRUE)
+
+
+# GDP ---------------------------------------------------------------------
+
+# data <- read.csv(file = './data/OECD_Quarterly_GDP.csv', stringsAsFactors = FALSE)
+# 
+# data <- data %>%
+#   dplyr::rename(Country = LOCATION, Date = TIME, GDP_change = Value) %>%
+#   filter(Country %in% countries) %>%
+#   mutate(Quarter = str_split(Date, "-Q")[[1]][2]) %>%
+#   mutate(Year = str_split(Date, "-Q")[[1]][1]) %>%
+#   select(Country, Quarter, Year, GDP_change)
+# 
+# 
+# 
+# df <- merge(x = df, y = data, by = c("Country", "Month", "Year"), all.x = TRUE)
+
+
+# Stimulus data -----------------------------------------------------------
+
+data <- read.csv(file = './data/IMF_Stimulus_Data.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  dplyr::rename(stimulus_spending_pct_gdp = Total.Stimulus.Spending.Percent.GDP, liquidity_support_pct_gdp = Total.Liquidity.Support.Percent.GDP, health_stimulus_spending_pct_gdp = Total.Stimulus.Spending.in.Health.Sector.Percent.GDP) %>%
+  filter(Country %in% countries) %>%
+  select(Country,stimulus_spending_pct_gdp , liquidity_support_pct_gdp, health_stimulus_spending_pct_gdp)
+
+
+df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
+
+write.csv(df,"./data/all_data.csv", row.names = FALSE)
+
+
+# Other economic factors - *price_volatility, *economic_composition
+# Political factors -  *political_stability_index, *civil_liberties
+# and gdp
 # Stimulus data 
