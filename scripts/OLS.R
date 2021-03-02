@@ -6,13 +6,8 @@ library(tidyverse)
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
-unique(data$Country)
-
 usa_data <- data %>%
-  filter(Country == "USA") %>%
-  filter(!is.na(Date)) %>%
-  arrange(Date) %>%
-  select(Date, stringency_index, stock_change, retail_and_recreation)
+  filter(Country == "USA")
 
 colnames(usa_data)
 
@@ -28,7 +23,15 @@ colnames(usa_data)
 
 
 # OLS ---------------------------------------------------------------------
-fit <- lm(stock_change ~ stringency_index, data=usa_data)
+fit <- lm(stock_change ~ stringency_index + 
+            aged_65_older + 
+            human_development_index + 
+            median_age + 
+            life_expectancy +
+            population_density +
+            extreme_poverty +
+            
+            , data=data)
 summary(fit) # show results
 
 

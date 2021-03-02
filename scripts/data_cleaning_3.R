@@ -52,17 +52,17 @@ stock_data$Adj.Close <- as.numeric(stock_data$Adj.Close)
 
 stock_data <- stock_data %>%
   group_by(Country) %>%
-  mutate(stock_change = 100* (Adj.Close/lag(Adj.Close) -1 )) %>%
-  mutate(stock_change_m1 = lag(stock_change)) %>%
-  mutate(stock_change_m2 = lag(stock_change_m1)) %>%
-  mutate(stock_change_m3 = lag(stock_change_m2)) %>%
-  mutate(stock_change_m4 = lag(stock_change_m3)) %>%
-  mutate(stock_change_m5 = lag(stock_change_m4)) %>%
-  mutate(stock_change_m6 = lag(stock_change_m5)) %>%
-  mutate(stock_change_m7 = lag(stock_change_m6)) %>%
-  mutate(stock_change_m8 = lag(stock_change_m7)) %>%
-  mutate(stock_change_m9 = lag(stock_change_m8)) %>%
-  mutate(stock_change_m10 = lag(stock_change_m9)) 
+  mutate(stock_change = 100* (Adj.Close/lag(Adj.Close) -1 )) # %>%
+  # mutate(stock_change_m1 = lag(stock_change)) %>%
+  # mutate(stock_change_m2 = lag(stock_change_m1)) %>%
+  # mutate(stock_change_m3 = lag(stock_change_m2)) %>%
+  # mutate(stock_change_m4 = lag(stock_change_m3)) %>%
+  # mutate(stock_change_m5 = lag(stock_change_m4)) %>%
+  # mutate(stock_change_m6 = lag(stock_change_m5)) %>%
+  # mutate(stock_change_m7 = lag(stock_change_m6)) %>%
+  # mutate(stock_change_m8 = lag(stock_change_m7)) %>%
+  # mutate(stock_change_m9 = lag(stock_change_m8)) %>%
+  # mutate(stock_change_m10 = lag(stock_change_m9)) 
 
 write.csv(stock_data,"./data/Stock_data.csv", row.names = FALSE)
 
@@ -91,9 +91,21 @@ data <- data %>%
   dplyr::rename(Country = iso_code, Date = date)%>%
   mutate(Date = as.Date(Date)) %>%
   filter(Country %in% countries) %>%
-  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty)
-
-colnames(data)
+  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty) %>%
+  group_by(Country) %>%
+  arrange(Date) %>%
+  mutate(stringency_index_m1 = lag(stringency_index)) %>%
+  mutate(stringency_index_m2 = lag(stringency_index_m1)) %>%
+  mutate(stringency_index_m3 = lag(stringency_index_m2)) %>%
+  mutate(stringency_index_m4 = lag(stringency_index_m3)) %>%
+  mutate(stringency_index_m5 = lag(stringency_index_m4)) %>%
+  mutate(stringency_index_m6 = lag(stringency_index_m5)) %>%
+  mutate(stringency_index_m7 = lag(stringency_index_m6)) %>%
+  mutate(stringency_index_m8 = lag(stringency_index_m7)) %>%
+  mutate(stringency_index_m9 = lag(stringency_index_m8)) %>%
+  mutate(stringency_index_m10 = lag(stringency_index_m9)) %>%
+  filter(Country == "ARG")
+  
 
 df <- merge(x = df, y = data, by = c("Country", "Date"), all = TRUE)
 
@@ -310,9 +322,11 @@ data <- data %>%
 
 df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
 
+
+# Save dataframe ----------------------------------------------------------
+
+
 write.csv(df,"./data/all_data.csv", row.names = FALSE)
 
 # Other economic factors - *price_volatility
 # Political factors -  *political_stability_index, *civil_liberties
-# and gdp
-# Stimulus data 
