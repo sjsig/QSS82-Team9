@@ -97,7 +97,7 @@ data <- data %>%
   dplyr::rename(Country = iso_code, Date = date, covid_rate = total_cases_per_million)%>%
   mutate(Date = as.Date(Date)) %>%
   filter(Country %in% countries) %>%
-  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty, covid_rate) %>%
+  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty, covid_rate, gdp_per_capita) %>%
   group_by(Country) %>%
   arrange(Date) %>%
   mutate(stringency_index_m1 = lag(stringency_index)) %>%

@@ -8,6 +8,10 @@ library(lavaan) # For latent variables and structural equations models.
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
+data <- data %>%
+  filter(Date < "2021-01-01")
+
+
 summary(data$stock_change)
 
 data <- data %>%
@@ -18,36 +22,75 @@ data <- data %>%
 # mediation package accepts many different model types. 
 # This example: one linear model, one probit. 
 
-med.fit <- lm(stringency_index ~ 
+med.fit <- lm(stringency_index ~
+                median_age +
+                stringency_index_m1 +
+                stringency_index_m2 +
+                stringency_index_m3 +
+                stringency_index_m4 +
+                stringency_index_m5 +
+                stringency_index_m6 +
+                stringency_index_m7 +
+                stringency_index_m8 +
+                stringency_index_m9 +
+                stringency_index_m10 +
+                life_expectancy +
+                agriculture +
+                industry +
+                manufacturing +
+                services +
+                maj_DPI +
+                frac_DPI +
                 aged_65_older +
                 covid_rate + 
                 human_development_index +
-                median_age +
-                life_expectancy +
-                population_density +
                 retail_and_recreation +
                 residential +
-                urban_pop +
                 rural_pop +
                 suburban_pop +
+                urban_pop +
+                one_yr_unemp_bene +
+                oil_price +
                 CCI +
-                oil_price, data=data)
+                stimulus_spending_pct_gdp +
+                liquidity_support_pct_gdp +
+                health_stimulus_spending_pct_gdp +
+                gdp_per_capita, data=data)
 
 out.fit <- lm(stock_change ~ stringency_index +
-                stringency_index_m1 +
-                aged_65_older +
-                covid_rate +
-                human_development_index +
                 median_age +
+                stringency_index_m1 +
+                stringency_index_m2 +
+                stringency_index_m3 +
+                stringency_index_m4 +
+                stringency_index_m5 +
+                stringency_index_m6 +
+                stringency_index_m7 +
+                stringency_index_m8 +
+                stringency_index_m9 +
+                stringency_index_m10 +
                 life_expectancy +
-                population_density +
+                agriculture +
+                industry +
+                manufacturing +
+                services +
+                maj_DPI +
+                frac_DPI +
+                aged_65_older +
+                covid_rate + 
+                human_development_index +
                 retail_and_recreation +
                 residential +
-                urban_pop +
                 rural_pop +
                 suburban_pop +
+                urban_pop +
+                one_yr_unemp_bene +
+                oil_price +
                 CCI +
-                oil_price, data=data)
+                stimulus_spending_pct_gdp +
+                liquidity_support_pct_gdp +
+                health_stimulus_spending_pct_gdp +
+                gdp_per_capita, data=data)
 
 # Mediation function ------------------------------------------------------
 # The mediate function. Two versions:

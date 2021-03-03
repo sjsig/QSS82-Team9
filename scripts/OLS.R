@@ -12,6 +12,9 @@ data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
 data <- japply( data, which(sapply(data, typeof)=="integer"), as.double )
 
+data <- data %>%
+  filter(Date < "2021-01-01")
+
 colnames(data)
 types <- sapply(data, typeof)
 types_df <- data.frame(types) %>%
@@ -20,38 +23,42 @@ types_df <- data.frame(types) %>%
 
 # OLS ---------------------------------------------------------------------
 fit <- lm(stock_change ~ stringency_index +
-            stringency_index_m1 +
-            aged_65_older +
-            covid_rate + 
-            human_development_index +
             median_age +
+            stringency_index_m1 +
+            stringency_index_m2 +
+            stringency_index_m3 +
+            stringency_index_m4 +
+            stringency_index_m5 +
+            stringency_index_m6 +
+            stringency_index_m7 +
+            stringency_index_m8 +
+            stringency_index_m9 +
+            stringency_index_m10 +
             life_expectancy +
-            population_density +
-            extreme_poverty +
-            retail_and_recreation +
-            residential +
-            urban_pop +
-            rural_pop +
-            suburban_pop +
-            CCI +
-            one_yr_unemp_bene +
-            two_mth_umemp_bene +
-            six_mth_unemp_bene +
-            oil_price +
-            stimulus_spending_pct_gdp +
-            liquidity_support_pct_gdp +
-            health_stimulus_spending_pct_gdp +
             agriculture +
             industry +
             manufacturing +
             services +
             maj_DPI +
-            frac_DPI, data=data)
+            frac_DPI +
+            aged_65_older +
+            covid_rate + 
+            human_development_index +
+            retail_and_recreation +
+            residential +
+            rural_pop +
+            suburban_pop +
+            urban_pop +
+            one_yr_unemp_bene +
+            oil_price +
+            CCI +
+            stimulus_spending_pct_gdp +
+            liquidity_support_pct_gdp +
+            health_stimulus_spending_pct_gdp +
+            gdp_per_capita, data=data)
 
-xtable(summary(fit))
 summary(fit)
-
-# alias(fit)
+xtable(summary(fit))
 
 
 
@@ -85,7 +92,6 @@ anova(fit1, fit2)
 
 # Stepwise Regression
 library(MASS)
-fit <- lm(y~x1+x2+x3,data=mydata)
 step <- stepAIC(fit, direction="both")
 step$anova # display results
 
