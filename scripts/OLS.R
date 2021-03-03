@@ -57,8 +57,45 @@ fit <- lm(stock_change ~ stringency_index +
             health_stimulus_spending_pct_gdp +
             gdp_per_capita, data=data)
 
+names(fit$coefficients) <- c("Intercept",
+                              "Lockdown Severity",
+                               "Median Age",
+                               "Lockdown Severity (Day N-1)",
+                               "Lockdown Severity (Day N-2)",
+                               "Lockdown Severity (Day N-3)",
+                               "Lockdown Severity (Day N-4)",
+                               "Lockdown Severity (Day N-5)",
+                               "Lockdown Severity (Day N-6)",
+                               "Lockdown Severity (Day N-7)",
+                               "Lockdown Severity (Day N-8)",
+                               "Lockdown Severity (Day N-9)",
+                               "Lockdown Severity (Day N-10)",
+                               "Life Expectancy",
+                               "Agriculture Sector Share of GDP",
+                               "Industry Sector Share of GDP",
+                               "Manufacturing Sector Share of GDP",
+                               "Service Sector Share of GDP",
+                               "Margin of Majority",
+                               "Fractionalization Index",
+                               "Share of Population Older Than 65",
+                               "Total COVID-19 Cases Per Million People", 
+                               "Human Development Index",
+                               "Retail and Recreational Mobility",
+                               "Residential Mobility",
+                               "Rural Share of Population",
+                               "Suburban Share of Population",
+                               "Urban Share of Population",
+                               "Unemployment Benefits",
+                               "Oil Spot Prices",
+                               "Consumer Confidence Index",
+                               "Total Stimulus Spending Pct of GDP",
+                               "Liquidity Support Pct of GDP",
+                               "Healthcare Stimulus Spending Pct of GDP",
+                               "GDP Per Capita")
+
 summary(fit)
 xtable(summary(fit))
+
 
 
 
@@ -101,7 +138,7 @@ calc.relimp(fit,type=c("lmg","last","first","pratt"),
             rela=TRUE)
 
 # Bootstrap Measures of Relative Importance (1000 samples)
-boot <- boot.relimp(fit, b = 1000, type = c("lmg",
+boot <- boot.relimp(fit, b = 10, type = c("lmg",
                                             "last", "first", "pratt"), rank = TRUE,
                     diff = TRUE, rela = TRUE)
 booteval.relimp(boot) # print result
