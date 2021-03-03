@@ -77,7 +77,8 @@ ggplot(results, aes(x = Variable, y = Coefficient)) +
                      ymin = conf.low_95,
                      ymax = conf.high_95),
                  lwd = 1/2) + 
-  ggtitle("Outcome: Fertility") +
+  ggtitle("Confidence Intervals of Key Variables") +
+  theme(plot.title = element_text(hjust = 0.5))
   coord_flip() +
   t9theme
 
