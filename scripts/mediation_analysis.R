@@ -3,6 +3,7 @@
 library(mediation)
 # Can also be done through...
 library(lavaan) # For latent variables and structural equations models. 
+library(tidyverse)
 
 # Load data ---------------------------------------------------------------
 
@@ -15,15 +16,15 @@ data <- data %>%
 summary(data$stock_change)
 
 data <- data %>%
-  arrange(Country, Date)
+  arrange(Country, Date) %>%
+  filter(!is.na(stock_change))
 
 
 # Create models ------------------------------------------------------------
 # mediation package accepts many different model types. 
-# This example: one linear model, one probit. 
 
-med.fit <- lm(stringency_index ~
-                median_age +
+med.fit <- lm(stringency_index 
+                 ~
                 stringency_index_m1 +
                 stringency_index_m2 +
                 stringency_index_m3 +
@@ -34,6 +35,7 @@ med.fit <- lm(stringency_index ~
                 stringency_index_m8 +
                 stringency_index_m9 +
                 stringency_index_m10 +
+                median_age +
                 life_expectancy +
                 agriculture +
                 industry +
@@ -55,10 +57,11 @@ med.fit <- lm(stringency_index ~
                 stimulus_spending_pct_gdp +
                 liquidity_support_pct_gdp +
                 health_stimulus_spending_pct_gdp +
-                gdp_per_capita, data=data)
+                gdp_per_capita, data=data, na.action=na.omit)
+
+summary(med.fit)
 
 out.fit <- lm(stock_change ~ stringency_index +
-                median_age +
                 stringency_index_m1 +
                 stringency_index_m2 +
                 stringency_index_m3 +
@@ -69,6 +72,7 @@ out.fit <- lm(stock_change ~ stringency_index +
                 stringency_index_m8 +
                 stringency_index_m9 +
                 stringency_index_m10 +
+                median_age +
                 life_expectancy +
                 agriculture +
                 industry +
@@ -90,7 +94,9 @@ out.fit <- lm(stock_change ~ stringency_index +
                 stimulus_spending_pct_gdp +
                 liquidity_support_pct_gdp +
                 health_stimulus_spending_pct_gdp +
-                gdp_per_capita, data=data)
+                gdp_per_capita, data=data, na.action=na.omit)
+
+summary(out.fit)
 
 # Mediation function ------------------------------------------------------
 # The mediate function. Two versions:

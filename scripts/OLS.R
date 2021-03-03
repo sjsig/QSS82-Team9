@@ -86,9 +86,9 @@ layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(fit)
 
 # compare models
-fit1 <- lm(y ~ x1 + x2 + x3 + x4, data=mydata)
-fit2 <- lm(y ~ x1 + x2)
-anova(fit1, fit2)
+# fit1 <- lm(y ~ x1 + x2 + x3 + x4, data=mydata)
+# fit2 <- lm(y ~ x1 + x2)
+# anova(fit1, fit2)
 
 # Stepwise Regression
 library(MASS)
@@ -101,8 +101,7 @@ calc.relimp(fit,type=c("lmg","last","first","pratt"),
             rela=TRUE)
 
 # Bootstrap Measures of Relative Importance (1000 samples)
-boot <- boot.relimp(fit, b = 1000, type = c("lmg",
-                                            "last", "first", "pratt"), rank = TRUE,
+boot <- boot.relimp(fit, b = 1, type = c("lmg"), rank = TRUE,
                     diff = TRUE, rela = TRUE)
 booteval.relimp(boot) # print result
 plot(booteval.relimp(boot,sort=TRUE)) # plot result
