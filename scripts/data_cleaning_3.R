@@ -2,6 +2,7 @@
 library(tidyverse)
 library(dplyr)
 library(countrycode)
+library(zoo)
 
 
 # Set working directory (if necessary) ------------------------------------
@@ -97,19 +98,22 @@ data <- data %>%
   dplyr::rename(Country = iso_code, Date = date, covid_rate = total_cases_per_million)%>%
   mutate(Date = as.Date(Date)) %>%
   filter(Country %in% countries) %>%
-  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty, covid_rate, gdp_per_capita) %>%
+  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty, covid_rate, gdp_per_capita, hospital_beds_per_thousand, total_vaccinations_per_hundred, new_cases_smoothed_per_million, new_deaths_smoothed_per_million, new_tests_smoothed_per_thousand) %>%
   group_by(Country) %>%
   arrange(Date) %>%
-  mutate(stringency_index_m1 = lag(stringency_index)) %>%
-  mutate(stringency_index_m2 = lag(stringency_index_m1)) %>%
-  mutate(stringency_index_m3 = lag(stringency_index_m2)) %>%
-  mutate(stringency_index_m4 = lag(stringency_index_m3)) %>%
-  mutate(stringency_index_m5 = lag(stringency_index_m4)) %>%
-  mutate(stringency_index_m6 = lag(stringency_index_m5)) %>%
-  mutate(stringency_index_m7 = lag(stringency_index_m6)) %>%
-  mutate(stringency_index_m8 = lag(stringency_index_m7)) %>%
-  mutate(stringency_index_m9 = lag(stringency_index_m8)) %>%
-  mutate(stringency_index_m10 = lag(stringency_index_m9))
+  mutate(stringency_ra = zoo::rollmean(stringency_index, k = 7, fill = NA, align = "right")) %>%
+  mutate(covid_log = log(covid_rate)) %>%
+  arrange(Country, Date)
+  # mutate(stringency_index_m1 = lag(stringency_index)) %>%
+  # mutate(stringency_index_m2 = lag(stringency_index_m1)) %>%
+  # mutate(stringency_index_m3 = lag(stringency_index_m2)) %>%
+  # mutate(stringency_index_m4 = lag(stringency_index_m3)) %>%
+  # mutate(stringency_index_m5 = lag(stringency_index_m4)) %>%
+  # mutate(stringency_index_m6 = lag(stringency_index_m5)) %>%
+  # mutate(stringency_index_m7 = lag(stringency_index_m6)) %>%
+  # mutate(stringency_index_m8 = lag(stringency_index_m7)) %>%
+  # mutate(stringency_index_m9 = lag(stringency_index_m8)) %>%
+  # mutate(stringency_index_m10 = lag(stringency_index_m9))
   
 
 df <- merge(x = df, y = data, by = c("Country", "Date"), all = TRUE)
@@ -271,6 +275,24 @@ data <- data %>%
 
 df <- merge(x = df, y = data, by = c("Country", "Month", "Year"), all.x = TRUE)
 
+# Healtcare spending  -----------------------------------------------------------
+
+data <- read.csv(file = './data/OECD_Health_Spending_As_Percent_GDP.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  dplyr::rename(Country = LOCATION, Date = TIME) %>%
+  filter(Country %in% countries) %>%
+  filter(SUBJECT == "TOT") %>%
+  group_by(Country) %>%
+  arrange(Date) %>%
+  filter(row_number() == n()) %>%
+  mutate(health_spending_pct_gdp =  Value) %>%
+  select(Country, health_spending_pct_gdp)
+
+
+
+df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
+
 
 # GDP ---------------------------------------------------------------------
 
@@ -337,6 +359,20 @@ summary(df$stock_change)
 df_2 <- df %>%
   filter(is.na(stock_change)) %>%
   arrange(Country, Date)
+
+# Polity score ------------------------------------------------------------
+
+
+data <- read.csv(file = './data/polity_score_data.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  filter(ID_year == 2019) %>%
+  dplyr::rename(Country = ID_country_name, polity = fundamental_rights) %>%
+  mutate(Country = countrycode(Country, origin = 'country.name', destination = 'iso3c'))%>%
+  select(Country, polity)
+
+
+df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
 
 
 # Save dataframe ----------------------------------------------------------
