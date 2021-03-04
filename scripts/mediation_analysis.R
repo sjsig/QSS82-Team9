@@ -115,10 +115,12 @@ summary(out.fit)
 # ADE = average direct effect. 
 # Indirect effect represented by (coefficient X->M (mod 1))*(coefficient M->Y(mod2))
 
-med.out <- mediate(med.fit, out.fit, treat = "new_cases_smoothed_per_million", mediator = "stringency_ra", sims = 300, boot = TRUE)
+med.out <- mediate(med.fit, out.fit, treat = "new_cases_smoothed_per_million", mediator = "stringency_ra", sims = 1000, boot = TRUE)
 
 summary(med.out)
+png("./plots/mediator_output.png", width=500, height=500)
 plot(med.out)
+dev.off()
 
 #ADE crossing zero and ACME not crossing zero -> estimated indirect effect is strong - effect of x on y is totally or partially mediated
 # check histograms, and if skewed consider logs of those variables and see how that runs (log of covid rates, try this out)
@@ -131,7 +133,13 @@ sens <- medsens(med.out)
 
 # Plot of the sensitivity analysis. 
 
+png("./plots/sens_output_1.png", width=500, height=500)
 plot(sens)
+dev.off()
+
+png("./plots/sens_output_2.png", width=500, height=500)
 plot(sens, sens.par = "R2", r.type = "total", sign.prod = "positive")
+dev.off()
+
 
 

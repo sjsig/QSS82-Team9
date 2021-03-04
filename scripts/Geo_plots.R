@@ -11,8 +11,10 @@ library(maps)
 library(viridis)
 library(countrycode)
 library(gifski)
+library(rworldmap)
 
 theme_set(theme_void())
+
 # Load data  --------------------------------------------------------------
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
@@ -29,33 +31,18 @@ countries <- countries[!(countries %in% c("HKG", "TUR"))]
 coefficients <- data.frame()
 
 for (country in countries){
+  print(country)
   country_data <- data %>%
-    filter(Country == country)
+    filter(Country == country) %>%
+    select(stock_change, stringency_ra, services, polity ,frac_DPI, human_development_index,
+             residential, population_density, oil_price,hospital_beds_per_thousand, new_cases_smoothed_per_million ,retail_and_recreation, stimulus_spending_pct_gdp)
   
-  fit <- lm(stock_change ~ stringency_index +
-              stringency_index_m1 +
-              stringency_index_m2 +
-              stringency_index_m3 +
-              stringency_index_m4 +
-              stringency_index_m5 +
-              stringency_index_m6 +
-              stringency_index_m7 +
-              stringency_index_m8 +
-              stringency_index_m9 +
-              stringency_index_m10 +
-              covid_rate + 
-              median_age +
-              life_expectancy +
-              frac_DPI + 
-              aged_65_older + 
-              covid_rate +
-              human_development_index + 
-              population_density +
-              gdp_per_capita + 
-              stimulus_spending_pct_gdp +
-              liquidity_support_pct_gdp +
-              health_stimulus_spending_pct_gdp +
-              oil_price, data=country_data)
+  for(col in colnames(country_data)){
+    # print(summary(country_data[col]))
+  }
+  
+  
+  fit <- lm(stock_change ~ stringency_ra + polity + frac_DPI + human_development_index + population_density + oil_price + hospital_beds_per_thousand + new_cases_smoothed_per_million  + stimulus_spending_pct_gdp, data = country_data)
 
   
   coeff <- tidy(fit) %>%
@@ -73,7 +60,7 @@ for (country in countries){
 
 # Plot country coefficients  ----------------------------------------------
 
-world_map <- map_data("world") %>%
+world_map <- getMap(resolution="low") %>%
   mutate(region = countrycode(region, origin = 'country.name', destination = 'iso3c') ) 
 coeff_map <- left_join(world_map,coefficients, by = "region")
 
@@ -98,6 +85,19 @@ max_coeff <- max(max)
 colMin <- function(data) sapply(data, min, na.rm = TRUE)
 min <- colMin(coefficients[coeff_list])
 min_coeff <- min(min)
+
+
+# stringency_ra 
+
+ggplot(coeff_map, aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill=stringency_ra), colour = "white") +
+  scale_fill_continuous( low="#CAD7EB", high="#042E6E", guide="colorbar", na.value="lightgray") +
+  # scale_fill_viridis_c(option = "C", na.value = "lightgray") +
+  theme(plot.margin=unit(c(.5,.5,.5,.5),"cm")) +
+  labs(fill="Stringency Coefficient", title = "Regression Coefficient on Independent Variable by Country", subtitle = "IV is a 7-day rolling average of Oxford's government stringency index")
+
+ggsave("./plots/stringency_ra_map.pdf", width=11, height=8.5, units="in")
+ggsave("./plots/stringency_ra_map.png", width=11, height=8.5, units="in")
 
 # covid_rate
 ggplot(coeff_map, aes(x = long, y = lat, group = group)) +

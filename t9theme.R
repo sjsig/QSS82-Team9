@@ -1,6 +1,6 @@
 ## If you have yet to do so
 
-install.packages(“extrafont”)
+ 
 library(extrafont)
 
 ## Import non-system fonts (only import if you have to because ## it takes a long time and makes your computer go crazy)

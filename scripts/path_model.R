@@ -85,8 +85,6 @@ final_dag %>%
                    max.overlaps = 20) + 
   theme_dag()
 
-
-
 # ggdag_status(covid_dag, text = FALSE, use_labels = "label", node_size = 16, text_size =3) +
   # theme_dag()
 
