@@ -19,6 +19,8 @@ library(gpclib)
 library(maptools)
 library(ggplot2)
 library(dplyr)
+library(zoo)
+library(lazyeval)
 
 # get world map
 wmap <- getMap(resolution="low")
@@ -28,6 +30,9 @@ wmap <- spTransform(wmap, CRS("+proj=robin")) # reproject
 wmap <-   subset(wmap, !(NAME %like% "Antar")) # Remove Antarctica
 
 # Clean Stock Data
+stock_data <- read.csv(file = "./data/stock_data.csv", stringsAsFactors = FALSE)
+
+
 
 stocks <- stock_data %>%
   filter(Date >= "2020-01-01" & Date < "2021-01-01")
@@ -35,17 +40,50 @@ stocks <- stock_data %>%
 stocks$Close <- as.numeric(stocks$Close)
 
 stocks <- stocks %>%
-  filter(Country != "ISR") %>%
   group_by(Country) %>%
   rename(country_iso3c = Country) %>%
   mutate(first_stock_close = Close[which(!is.na(Close))[1]]) %>%
   mutate(change_since_first = ((Close - first_stock_close) / first_stock_close) * 100)
 
-test <- stocks %>%
-  filter(is.na(change_since_first)) %>%
- 
-   group_by(country_iso3c) %>%
-  summarize(n())
+stocks <- stocks %>%
+  mutate(change_since_first = ifelse(change_since_first > 10, 10, change_since_first)) %>%
+  mutate(change_since_first = ifelse(change_since_first < -20, -20, change_since_first))
+  
+
+spread_stocks <- stocks %>%
+  group_by(country_iso3c) %>%
+  arrange(Date) %>%
+  ungroup() %>%
+  select(Date, country_iso3c, change_since_first) %>%
+  spread(country_iso3c, change_since_first)
+
+stocks <- spread_stocks %>% gather(country_iso3c, change_since_first, ARG:ZAF) %>%
+  group_by(country_iso3c) %>%
+  mutate(change_since_first = ifelse(is.na(change_since_first), na.locf(change_since_first), change_since_first))
+
+countdf <- stocks %>% group_by(country_iso3c) %>%
+  summarise(count = n())
+t <- stocks %>%
+  filter(country_iso3c == "CHN")
+
+u <- stocks %>%
+  filter(country_iso3c == "USA")
+# 
+# stocks <- subset(stocks, !ave(change_since_first, Date, FUN = function(x) any(is.na(x))))
+# 
+# 
+# 
+# test <- stocks %>%
+#   group_by(Date) %>%
+#   summarize(count = n())
+# 
+# stocks <- stocks %>% 
+#   group_by(Date) %>% 
+#   filter(n() >= 33)
+# 
+# test2 <- stocks %>%
+#   group_by(Date) %>%
+#   summarize(count = n())
 
 centroids <- gCentroid( wmap , byid=TRUE, id = wmap@data$ISO3)
 centroids <- data.frame(centroids)
@@ -61,11 +99,11 @@ wmap_df <- left_join(wmap_df, centroids, by = c('id'='country_iso3c')) # centroi
 # plot
 o <- ggplot(data=wmap_df) +
   geom_polygon(aes(x = long, y = lat, group = group, fill=change_since_first, frame = Date), color="gray90") +
-  scale_fill_viridis(name="Percent Change in Stock Close", begin = 0, end = 1, limits = c(-30
-,20), na.value="gray99") +
+  scale_fill_viridis(name="Percent Change in Stock Close", begin = 0, end = 1, limits = c(-20
+,10), na.value="gray99") +
   theme_void() +
   guides(fill = guide_colorbar(title.position = "top")) +
-  labs(title = "Percent Change in Closing Stock Price Since Beginning of 2020, ") +
+  labs(title = "Percent Change in Closing Stock Price Since Beginning of Pandemic, Current Day:") +
   theme(plot.title = element_text(hjust = 0.5, vjust = 0.05, size=25)) +
   theme(plot.caption = element_text(hjust = 0, color="gray40", size=15)) +
   coord_cartesian(xlim = c(-11807982, 14807978)) +
@@ -77,7 +115,7 @@ o <- ggplot(data=wmap_df) +
          legend.text=element_text(size=13) )
 
 # save gif
-gg_animate(o, "output4020_old.gif", title_frame =T, 
-           ani.width=1600, ani.height=820, dpi=800, interval = .05)
+gg_animate(o, "final_stock_change_map.gif", title_frame =T, 
+           ani.width=1600, ani.height=820, dpi=800, interval = .1)
 
 
