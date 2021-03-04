@@ -47,7 +47,7 @@ stocks <- stocks %>%
 
 stocks <- stocks %>%
   mutate(change_since_first = ifelse(change_since_first > 10, 10, change_since_first)) %>%
-  mutate(change_since_first = ifelse(change_since_first < -20, -20, change_since_first))
+  mutate(change_since_first = ifelse(change_since_first < -10, -10, change_since_first))
   
 
 spread_stocks <- stocks %>%
@@ -99,8 +99,8 @@ wmap_df <- left_join(wmap_df, centroids, by = c('id'='country_iso3c')) # centroi
 # plot
 o <- ggplot(data=wmap_df) +
   geom_polygon(aes(x = long, y = lat, group = group, fill=change_since_first, frame = Date), color="gray90") +
-  scale_fill_viridis(name="Percent Change in Stock Close", begin = 0, end = 1, limits = c(-20
-,10), na.value="gray99") +
+  scale_fill_gradient2(name = "Percent Change in Stock Price", low="red", high="darkgreen", 
+                        guide="colorbar", mid = "white",na.value="lightgrey", limits = c(-10, 10)) +
   theme_void() +
   guides(fill = guide_colorbar(title.position = "top")) +
   labs(title = "Percent Change in Closing Stock Price Since Beginning of Pandemic, Current Day:") +
@@ -109,13 +109,15 @@ o <- ggplot(data=wmap_df) +
   coord_cartesian(xlim = c(-11807982, 14807978)) +
   theme( legend.position = c(.5, .08), 
          legend.direction = "horizontal", 
-         legend.title.align = 0,
+         legend.title.align = 0.5,
+         title=element_text(size=30),
          legend.key.size = unit(1.3, "cm"),
-         legend.title=element_text(size=17), 
-         legend.text=element_text(size=13) )
-
+         legend.title=element_text(size=15), 
+         legend.text=element_text(size=13) ,
+         text = element_text(family = "Times New Roman"),
+         legend.key = element_blank())
 # save gif
-gg_animate(o, "final_stock_change_map.gif", title_frame =T, 
+gg_animate(o, "test_map.gif", title_frame =T, 
            ani.width=1600, ani.height=820, dpi=800, interval = .1)
 
 
