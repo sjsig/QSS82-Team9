@@ -111,63 +111,57 @@ xtable(summary(fit))
 # # Stepwise Regression
 library(MASS)
 step_data <- data %>%
-  select(stock_change,  stringency_ra ,
-           median_age ,
-           life_expectancy ,
+  select(stock_change, stringency_ra ,
            agriculture ,
            industry ,
            manufacturing ,
            services ,
-           maj_DPI ,
            frac_DPI ,
            aged_65_older ,
-           covid_rate ,
+           new_cases_smoothed_per_million ,
+           new_deaths_smoothed_per_million ,
            human_development_index ,
            retail_and_recreation ,
            residential ,
-           rural_pop ,
-           suburban_pop ,
            urban_pop ,
            one_yr_unemp_bene ,
            oil_price ,
            CCI ,
-           health_spending_pct_gdp ,
            stimulus_spending_pct_gdp ,
-           liquidity_support_pct_gdp ,
-           health_stimulus_spending_pct_gdp ,
            gdp_per_capita ,
-           polity) %>%
+           polity ,
+           hospital_beds_per_thousand ,
+           population_density) %>%
   drop_na()
 step_fit <- lm(stock_change ~ stringency_ra +
-            median_age +
-            life_expectancy +
-            agriculture +
-            industry +
-            manufacturing +
-            services +
-            maj_DPI +
-            frac_DPI +
-            aged_65_older +
-            covid_rate + 
-            human_development_index +
-            retail_and_recreation +
-            residential +
-            rural_pop +
-            suburban_pop +
-            urban_pop +
-            one_yr_unemp_bene +
-            oil_price +
-            CCI +
-            health_spending_pct_gdp +
-            stimulus_spending_pct_gdp +
-            liquidity_support_pct_gdp +
-            health_stimulus_spending_pct_gdp +
-            gdp_per_capita +
-            polity
+                 agriculture +
+                 industry +
+                 manufacturing +
+                 services +
+                 frac_DPI +
+                 aged_65_older +
+                 new_cases_smoothed_per_million + 
+                 new_deaths_smoothed_per_million +
+                 human_development_index +
+                 retail_and_recreation +
+                 residential +
+                 urban_pop +
+                 one_yr_unemp_bene +
+                 oil_price +
+                 CCI +
+                 stimulus_spending_pct_gdp +
+                 gdp_per_capita +
+                 polity +
+                 hospital_beds_per_thousand +
+                 population_density
           , data=step_data)
 
 step <- stepAIC(step_fit, direction="both", steps = 1000)
 step$anova # display results
+
+best_fit <- lm(stock_change ~ stringency_ra + services + polity + frac_DPI + human_development_index +
+                 residential + urban_pop + oil_price + hospital_beds_per_thousand + new_cases_smoothed_per_million + retail_and_recreation + stimulus_spending_pct_gdp, data = data)
+summary(best_fit)
 # 
 # # Calculate Relative Importance for Each Predictor
 # library(relaimpo)
