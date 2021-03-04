@@ -11,16 +11,16 @@ library(ggrepel)
 
 # Our DAG
 
-covid_dag <- dagify(economics ~  compliance + economic_relief + politics + other_econ,
-                    compliance ~ covid_rates + demographics + politics + lockdown_policy,
-                    economic_relief ~~ politics,
+covid_dag <- dagify(economics ~  compliance + economic_relief + politics + other_econ + covid_rates + lockdown_policy,
+                    compliance ~ covid_rates + demographics + politics,
+                    economic_relief ~ politics,
                     lockdown_policy ~ covid_rates + politics,
                     covid_rates ~ healthcare,
                     healthcare ~ politics,
                          labels = c("economics" = "Economic\n Effects", 
                                     "other_econ" = "Other\n Economic\n Factors",
                                     "lockdown_policy" = "Lockdown\n Policy",
-                                    "compliance" = "Citizen\n Compliance",
+                                    "compliance" = "Citizen\n Activity",
                                     "oil_price" = "Oil Prices",
                                     "labor_demand" = "Demand for\n Labor",
                                     "economic_relief" ="Provided\n Economic\n Aid",
@@ -40,7 +40,7 @@ covid_dag <- dagify(economics ~  compliance + economic_relief + politics + other
                                     "healthcare" = "Quality of\n Healthcare"
                                     ),
                         exposure ="lockdown_policy",
-                        latent = c("compliance"),
+                        latent = c(),
                         outcome = "economics"
                    )
  
@@ -57,7 +57,7 @@ final_dag = tidycase %>%
   mutate(linetype = ifelse(direction == "<->", "dashed", "solid")) %>%
   mutate(class = "exogenous") %>%
   mutate(class = ifelse(name %in% c("lockdown_policy"), "exposure", class)) %>%
-  mutate(class = ifelse(name %in% c("compliance", "lockdown_efficacy"), "latent", class)) %>%
+  mutate(class = ifelse(name %in% c("lockdown_efficacy"), "latent", class)) %>%
   mutate(class = ifelse(name %in% c("economics"), "outcome", class)) %>%
   mutate(new_label = label)
 

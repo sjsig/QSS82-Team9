@@ -23,18 +23,7 @@ data <- data %>%
 # Create models ------------------------------------------------------------
 # mediation package accepts many different model types. 
 
-med.fit <- lm(stringency_index 
-                 ~
-                stringency_index_m1 +
-                stringency_index_m2 +
-                stringency_index_m3 +
-                stringency_index_m4 +
-                stringency_index_m5 +
-                stringency_index_m6 +
-                stringency_index_m7 +
-                stringency_index_m8 +
-                stringency_index_m9 +
-                stringency_index_m10 +
+med.fit <- lm(stringency_ra ~
                 median_age +
                 life_expectancy +
                 agriculture +
@@ -54,24 +43,17 @@ med.fit <- lm(stringency_index
                 one_yr_unemp_bene +
                 oil_price +
                 CCI +
+                health_spending_pct_gdp +
                 stimulus_spending_pct_gdp +
                 liquidity_support_pct_gdp +
                 health_stimulus_spending_pct_gdp +
-                gdp_per_capita, data=data, na.action=na.omit)
+                gdp_per_capita +
+                polity
+              , data=data)
 
 summary(med.fit)
 
-out.fit <- lm(stock_change ~ stringency_index +
-                stringency_index_m1 +
-                stringency_index_m2 +
-                stringency_index_m3 +
-                stringency_index_m4 +
-                stringency_index_m5 +
-                stringency_index_m6 +
-                stringency_index_m7 +
-                stringency_index_m8 +
-                stringency_index_m9 +
-                stringency_index_m10 +
+out.fit <- lm(stock_change ~ stringency_ra +
                 median_age +
                 life_expectancy +
                 agriculture +
@@ -91,10 +73,13 @@ out.fit <- lm(stock_change ~ stringency_index +
                 one_yr_unemp_bene +
                 oil_price +
                 CCI +
+                health_spending_pct_gdp +
                 stimulus_spending_pct_gdp +
                 liquidity_support_pct_gdp +
                 health_stimulus_spending_pct_gdp +
-                gdp_per_capita, data=data, na.action=na.omit)
+                gdp_per_capita +
+                polity
+              , data=data)
 
 summary(out.fit)
 
@@ -104,7 +89,7 @@ summary(out.fit)
 # ADE = average direct effect. 
 # Indirect effect represented by (coefficient X->M (mod 1))*(coefficient M->Y(mod2))
 
-med.out <- mediate(med.fit, out.fit, treat = "covid_rate", mediator = "stringency_index", sims = 300, boot = TRUE)
+med.out <- mediate(med.fit, out.fit, treat = "covid_rate", mediator = "stringency_ra", sims = 300, boot = TRUE)
 
 summary(med.out)
 plot(med.out)
