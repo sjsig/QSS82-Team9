@@ -96,6 +96,8 @@ names(fit$coefficients) <- c("Intercept",
 summary(fit)
 xtable(summary(fit))
 
+# IV - rollmean package, rolling average of stringency index of last 7 days
+
 
 
 

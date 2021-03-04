@@ -104,16 +104,19 @@ summary(out.fit)
 # ADE = average direct effect. 
 # Indirect effect represented by (coefficient X->M (mod 1))*(coefficient M->Y(mod2))
 
-med.out <- mediate(med.fit, out.fit, treat = "covid_rate", mediator = "stringency_index", sims = 1000, boot = TRUE)
+med.out <- mediate(med.fit, out.fit, treat = "covid_rate", mediator = "stringency_index", sims = 300, boot = TRUE)
 
 summary(med.out)
 plot(med.out)
+
+#ADE crossing zero and ACME not crossing zero -> estimated indirect effect is strong - effect of x on y is totally or partially mediated
+# check histograms, and if skewed consider logs of those variables and see how that runs (log of covid rates, try this out)
 
 
 # Sensitivity analysis. Test against possible uncontrolled confounders. 
 # Ignorability assumption. 
 
-sens <- medsens(med.out)
+sens <- medsens(med.out) 
 
 # Plot of the sensitivity analysis. 
 
