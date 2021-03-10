@@ -22,6 +22,53 @@ types_df <- data.frame(types) %>%
 
 
 # OLS ---------------------------------------------------------------------
+# fit <- lm(stock_change ~ stringency_ra +
+#             agriculture +
+#             industry +
+#             manufacturing +
+#             services +
+#             frac_DPI +
+#             aged_65_older +
+#             new_cases_smoothed_per_million + 
+#             new_deaths_smoothed_per_million +
+#             human_development_index +
+#             retail_and_recreation +
+#             residential +
+#             urban_pop +
+#             one_yr_unemp_bene +
+#             oil_price +
+#             CCI +
+#             stimulus_spending_pct_gdp +
+#             gdp_per_capita +
+#             polity +
+#             hospital_beds_per_thousand +
+#             population_density
+#           , data=data)
+# summary(fit)
+# 
+# names(fit$coefficients) <- c("Intercept",
+#                               "Lockdown Severity",
+#                                "Agriculture Sector Share of GDP",
+#                                "Industry Sector Share of GDP",
+#                                "Manufacturing Sector Share of GDP",
+#                                "Service Sector Share of GDP",
+#                                "Political Fractionalization Index",
+#                                "Share of Population Older Than 65",
+#                                "New COVID-19 Cases Per Million People",
+#                                 "New COVID-19 Deaths Per Million People",
+#                                "Human Development Index",
+#                                "Retail and Recreational Mobility",
+#                                "Residential Mobility",
+#                                "Urban Share of Population",
+#                                "One-Year Unemployment Benefits",
+#                                "Oil Spot Price",
+#                                "Consumer Confidence Index",
+#                                "Total Stimulus Spending as % of GDP",
+#                                "GDP Per Capita",
+#                                 "Polity Score",
+#                                 "Hospital Beds per 1000 Citizens",
+#                                 "Population Density")
+
 fit <- lm(stock_change ~ stringency_ra +
             agriculture +
             industry +
@@ -34,43 +81,15 @@ fit <- lm(stock_change ~ stringency_ra +
             human_development_index +
             retail_and_recreation +
             residential +
-            urban_pop +
-            one_yr_unemp_bene +
             oil_price +
-            CCI +
             stimulus_spending_pct_gdp +
+            health_spending_pct_gdp +
+            new_vaccinations_smoothed_per_million +
             gdp_per_capita +
             polity +
             hospital_beds_per_thousand +
             population_density
           , data=data)
-summary(fit)
-
-names(fit$coefficients) <- c("Intercept",
-                              "Lockdown Severity",
-                               "Agriculture Sector Share of GDP",
-                               "Industry Sector Share of GDP",
-                               "Manufacturing Sector Share of GDP",
-                               "Service Sector Share of GDP",
-                               "Political Fractionalization Index",
-                               "Share of Population Older Than 65",
-                               "New COVID-19 Cases Per Million People",
-                                "New COVID-19 Deaths Per Million People",
-                               "Human Development Index",
-                               "Retail and Recreational Mobility",
-                               "Residential Mobility",
-                               "Urban Share of Population",
-                               "One-Year Unemployment Benefits",
-                               "Oil Spot Price",
-                               "Consumer Confidence Index",
-                               "Total Stimulus Spending as % of GDP",
-                               "GDP Per Capita",
-                                "Polity Score",
-                                "Hospital Beds per 1000 Citizens",
-"Population Density"
-
-
-                             )
 
 summary(fit)
 xtable(summary(fit))

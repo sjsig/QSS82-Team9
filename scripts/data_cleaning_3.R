@@ -89,16 +89,18 @@ df$Date <- as.Date(df$Date)
 
 # Country list ------------------------------------------------------------
 
-countries <- c("ARG","AUS", "AUT", "BEL", "BRA", "CAN", "CHE", "CHN", "DEU", "ESP", "FIN", "FRA", "GBR", "HKG", "IDN", "IND", "IRL", "ISL", "ISR", "ITA", "KOR", "LTU", "MEX", "NLD", "NOR", "NZL", "PER", "PRT", "RUS", "SGP", "SWE", "TUR", "USA", "ZAF")
+countries <- c("ARG","AUS", "AUT", "BEL", "BRA", "CAN", "CHE", "CHN", "DEU", "ESP", "FIN", "FRA", "GBR", "IDN", "IND", "IRL", "ISL", "ISR", "ITA", "KOR", "LTU", "MEX", "NLD", "NOR", "NZL", "PER", "PRT", "RUS", "SGP", "SWE", "TUR", "USA", "ZAF")
 # Our world in data -------------------------------------------------------
 
 data <- read.csv(file = './data/lockdown_and_covid_rate_data.csv', stringsAsFactors = FALSE)
 
 data <- data %>%
   dplyr::rename(Country = iso_code, Date = date, covid_rate = total_cases_per_million)%>%
-  mutate(Date = as.Date(Date)) %>%
+  mutate(Date = as.Date(Date, format="%m/%d/%y")) %>%
   filter(Country %in% countries) %>%
-  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty, covid_rate, gdp_per_capita, hospital_beds_per_thousand, total_vaccinations_per_hundred, new_cases_smoothed_per_million, new_deaths_smoothed_per_million, new_tests_smoothed_per_thousand) %>%
+  select(Country, Date, stringency_index, aged_65_older, human_development_index, median_age, life_expectancy, population_density, extreme_poverty, covid_rate, gdp_per_capita, hospital_beds_per_thousand, new_vaccinations_smoothed_per_million, new_cases_smoothed_per_million, new_deaths_smoothed_per_million, new_tests_smoothed_per_thousand) %>%
+  mutate(new_vaccinations_smoothed_per_million = as.numeric(new_vaccinations_smoothed_per_million)) %>%
+  mutate(new_vaccinations_smoothed_per_million = if_else(is.na(new_vaccinations_smoothed_per_million), 0, new_vaccinations_smoothed_per_million)) %>%
   group_by(Country) %>%
   arrange(Date) %>%
   mutate(stringency_ra = zoo::rollmean(stringency_index, k = 7, fill = NA, align = "right")) %>%
@@ -150,7 +152,7 @@ data <- read.csv(file = './data/google-trends-mobility-data.csv', stringsAsFacto
 data <- data %>%
   dplyr::rename(Country = Code) %>%
   filter(Country %in% countries) %>%
-  mutate(Date = as.Date(Date)) %>%
+  mutate(Date = as.Date(Date, format="%m/%d/%y")) %>%
   select(Country, Date, retail_and_recreation, residential)
 
 df <- merge(x = df, y = data, by = c("Country", "Date"), all.x = TRUE)
@@ -253,7 +255,7 @@ data <- read.csv(file = './data/oil_price_data.csv', stringsAsFactors = FALSE)
 
 data <- data %>%
   dplyr::rename(oil_price = WTI_spot_price) %>%
-  mutate(Date = as.Date(Date, format = "%m/%d/%y")) %>%
+  mutate(Date = as.Date(Date, format = "%m/%d/%Y")) %>%
   select(Date, oil_price)
 
 df <- merge(x = df, y = data, by = c("Date"), all.x = TRUE)
