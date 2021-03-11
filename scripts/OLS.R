@@ -5,7 +5,9 @@ library( taRifx )
 library(car)
 library(xtable)
 library(stargazer)
+library(BBmisc)
 library(dplyr)
+
 
 # Load data  --------------------------------------------------------------
 
@@ -114,11 +116,61 @@ names(fit$coefficients) <- c("Intercept",
 summary(fit)
 xtable(summary(fit))
 
+
+# Normalized OLS Regression -----------------------------------------------
+
+norm_data <- normalize(data, method = "standardize")
+
+fit <- lm(stock_change ~ stringency_ra +
+            agriculture +
+            industry +
+            manufacturing +
+            services +
+            frac_DPI +
+            aged_65_older +
+            new_cases_smoothed_per_million + 
+            new_deaths_smoothed_per_million +
+            human_development_index +
+            retail_and_recreation +
+            residential +
+            oil_price +
+            stimulus_spending_pct_gdp +
+            health_spending_pct_gdp +
+            new_vaccinations_smoothed_per_million +
+            gdp_per_capita_log +
+            polity +
+            hospital_beds_per_thousand +
+            population_density_log
+          , data=norm_data)
+
+names(fit$coefficients) <- c("Intercept",
+                             "Lockdown Severity",
+                             "Agriculture Sector Share of GDP",
+                             "Industry Sector Share of GDP",
+                             "Manufacturing Sector Share of GDP",
+                             "Service Sector Share of GDP",
+                             "Political Fractionalization Index",
+                             "Share of Population Older Than 65",
+                             "New COVID-19 Cases Per Million People",
+                             "New COVID-19 Deaths Per Million People",
+                             "Human Development Index",
+                             "Retail and Recreational Mobility",
+                             "Residential Mobility",
+                             "Oil Spot Price",
+                             "Total Stimulus Spending as % of GDP",
+                             "Healthcare Spending as % of GDP",
+                             "New COVID-19 Vaccinations Per Million People",
+                             "GDP Per Capita (Log)",
+                             "Polity Score",
+                             "Hospital Beds per 1000 People",
+                             "Population Density (Log)")
+
+summary(fit)
+xtable(summary(fit))
+
+
+
 # IV - rollmean package, rolling average of stringency index of last 7 days
-
-
-
-
 # Lockdown policy - stringency_index 
 # Citizen Compliance - retail_and_recreation, residential
 # Country demographics - elderly_population/aged_65_older, pop_area + pop_distribution_for_area, population_density, life_expectancy, poverty_type + poverty_rate_for_type, human_development_index, median_age,     

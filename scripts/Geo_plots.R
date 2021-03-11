@@ -6,12 +6,13 @@ library(xtable)
 library(stargazer)
 library(broom)
 library(ggplot2)
-library(dplyr)
 library(maps)
 library(viridis)
 library(countrycode)
 library(gifski)
 library(rworldmap)
+library(mediation)
+library(dplyr)
 
 theme_set(theme_void())
 
@@ -19,34 +20,34 @@ theme_set(theme_void())
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
+
+# Build coefficients dataset for regression---------------------------------------------------------------------
+
+## removed due to incomplete data
 data <- data %>%
-  filter(Date < "2021-01-01")
-
-
-# Build coefficients dataset---------------------------------------------------------------------
+  filter(!Country %in% c("ARG", "CAN", "PER", "SGP"))
 
 countries <- unique(data$Country)
-countries <- countries[!(countries %in% c("HKG", "TUR"))]
 
 coefficients <- data.frame()
 
 for (country in countries){
   print(country)
   country_data <- data %>%
-    filter(Country == country) %>%
-    select(stock_change, stringency_ra, services, polity ,frac_DPI, human_development_index,
-             residential, population_density, oil_price,hospital_beds_per_thousand, new_cases_smoothed_per_million ,retail_and_recreation, stimulus_spending_pct_gdp)
-  
-  for(col in colnames(country_data)){
-    # print(summary(country_data[col]))
-  }
-  
-  
-  fit <- lm(stock_change ~ stringency_ra + polity + frac_DPI + human_development_index + population_density + oil_price + hospital_beds_per_thousand + new_cases_smoothed_per_million  + stimulus_spending_pct_gdp, data = country_data)
+    filter(Country == country)
 
+  fit <- lm(stock_change ~ stringency_ra +
+              new_cases_smoothed_per_million + 
+              new_deaths_smoothed_per_million +
+              retail_and_recreation +
+              residential +
+              oil_price +
+              new_vaccinations_smoothed_per_million, data=country_data)
+
+  print(summary(fit))
   
   coeff <- tidy(fit) %>%
-    select(term, estimate) %>%
+    dplyr::select(term, estimate) %>%
     spread(term, estimate) %>%
     mutate(region = country)
   
@@ -60,8 +61,8 @@ for (country in countries){
 
 # Plot country coefficients  ----------------------------------------------
 
-world_map <- getMap(resolution="low") %>%
-  mutate(region = countrycode(region, origin = 'country.name', destination = 'iso3c') ) 
+world_map <- map_data("world") %>%
+  dplyr::mutate(region = countrycode(region, origin = 'country.name', destination = 'iso3c') ) 
 coeff_map <- left_join(world_map,coefficients, by = "region")
 
 coeff_list <- colnames(coefficients)
@@ -96,8 +97,105 @@ ggplot(coeff_map, aes(x = long, y = lat, group = group)) +
   theme(plot.margin=unit(c(.5,.5,.5,.5),"cm")) +
   labs(fill="Stringency Coefficient", title = "Regression Coefficient on Independent Variable by Country", subtitle = "IV is a 7-day rolling average of Oxford's government stringency index")
 
-ggsave("./plots/stringency_ra_map.pdf", width=11, height=8.5, units="in")
-ggsave("./plots/stringency_ra_map.png", width=11, height=8.5, units="in")
+ggsave("./plots/stringency_ra_map_OLS.pdf", width=11, height=8.5, units="in")
+ggsave("./plots/stringency_ra_map_OLS.png", width=11, height=8.5, units="in")
+
+
+
+# Build coefficient set for mediation analysis ----------------------------
+coefficients <- data.frame()
+
+data <- data %>%
+  arrange(Country, Date) %>%
+  filter(!is.na(stock_change))
+
+for (country in countries){
+  print(country)
+  country_data <- data %>%
+    filter(Country == country)
+  
+  
+  med.fit <- lm(stringency_ra ~
+                  new_cases_smoothed_per_million + 
+                  new_deaths_smoothed_per_million +
+                  retail_and_recreation +
+                  residential +
+                  oil_price +
+                  new_vaccinations_smoothed_per_million, data=country_data)
+  
+  
+  out.fit <- lm(stock_change ~ stringency_ra +
+                  new_cases_smoothed_per_million + 
+                  new_deaths_smoothed_per_million +
+                  retail_and_recreation +
+                  residential +
+                  oil_price +
+                  new_vaccinations_smoothed_per_million, data=country_data)
+  
+  med.out <- mediate(med.fit, out.fit, treat = "new_cases_smoothed_per_million", mediator = "stringency_ra", sims = 1000, boot = TRUE)
+  print(summary(med.out))
+  # coeff <- tidy(med.out) %>%
+  #   select(term, estimate) %>%
+  #   spread(term, estimate) %>%
+  #   mutate(region = country)
+  # 
+  # coefficients <- rbind(coefficients, coeff)
+  
+}
+
+tidy(med.out)
+
+summary(med.out)
+class(med.out)
+med.out$d0
+
+# Plot country coefficients for mediation analysis ----------------------------------------------
+
+world_map <- map_data("world") %>%
+  dplyr::mutate(region = countrycode(region, origin = 'country.name', destination = 'iso3c') ) 
+coeff_map <- left_join(world_map,coefficients, by = "region")
+
+coeff_list <- colnames(coefficients)
+coeff_list <- coeff_list[!(coeff_list %in% c("(Intercept)", "region"))]
+
+# for (coeff in coeff_list){
+#   print(coeff)
+#   plot <- ggplot(coeff_map, aes(x = long, y = lat, group = group)) +
+#     geom_polygon(aes(fill=coeff), colour = "white") +
+#     scale_fill_viridis_c(option = "C", na.value = "lightgray")
+#   
+#   filename <- paste("./plots/",coeff,"_map.pdf", sep="")
+#   ggsave(filename, plot = plot)
+#     
+# }
+
+
+colMax <- function(data) sapply(data, max, na.rm = TRUE)
+max <- colMax(coefficients[coeff_list])
+max_coeff <- max(max)
+colMin <- function(data) sapply(data, min, na.rm = TRUE)
+min <- colMin(coefficients[coeff_list])
+min_coeff <- min(min)
+
+
+# stringency_ra 
+
+ggplot(coeff_map, aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill=stringency_ra), colour = "white") +
+  scale_fill_continuous( low="#CAD7EB", high="#042E6E", guide="colorbar", na.value="lightgray") +
+  # scale_fill_viridis_c(option = "C", na.value = "lightgray") +
+  theme(plot.margin=unit(c(.5,.5,.5,.5),"cm")) +
+  labs(fill="Stringency Coefficient", title = "Regression Coefficient on Independent Variable by Country", subtitle = "IV is a 7-day rolling average of Oxford's government stringency index")
+
+ggsave("./plots/stringency_ra_map_OLS.pdf", width=11, height=8.5, units="in")
+ggsave("./plots/stringency_ra_map_OLS.png", width=11, height=8.5, units="in")
+
+
+
+
+
+
+# Plots of Controls -------------------------------------------------------
 
 # covid_rate
 ggplot(coeff_map, aes(x = long, y = lat, group = group)) +
