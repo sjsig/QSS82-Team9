@@ -5,15 +5,13 @@ library( taRifx )
 library(car)
 library(xtable)
 library(stargazer)
+library(dplyr)
 
 # Load data  --------------------------------------------------------------
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
 data <- japply( data, which(sapply(data, typeof)=="integer"), as.double )
-
-data <- data %>%
-  filter(Date < "2021-01-01")
 
 colnames(data)
 types <- sapply(data, typeof)
@@ -85,11 +83,33 @@ fit <- lm(stock_change ~ stringency_ra +
             stimulus_spending_pct_gdp +
             health_spending_pct_gdp +
             new_vaccinations_smoothed_per_million +
-            gdp_per_capita +
+            gdp_per_capita_log +
             polity +
             hospital_beds_per_thousand +
-            population_density
+            population_density_log
           , data=data)
+
+names(fit$coefficients) <- c("Intercept",
+                             "Lockdown Severity",
+                              "Agriculture Sector Share of GDP",
+                              "Industry Sector Share of GDP",
+                              "Manufacturing Sector Share of GDP",
+                              "Service Sector Share of GDP",
+                              "Political Fractionalization Index",
+                              "Share of Population Older Than 65",
+                              "New COVID-19 Cases Per Million People",
+                               "New COVID-19 Deaths Per Million People",
+                              "Human Development Index",
+                              "Retail and Recreational Mobility",
+                              "Residential Mobility",
+                              "Oil Spot Price",
+                              "Total Stimulus Spending as % of GDP",
+                              "Healthcare Spending as % of GDP",
+                             "New COVID-19 Vaccinations Per Million People",
+                              "GDP Per Capita (Log)",
+                               "Polity Score",
+                               "Hospital Beds per 1000 People",
+                               "Population Density (Log)")
 
 summary(fit)
 xtable(summary(fit))

@@ -1,9 +1,8 @@
 # Load Packages  ----------------------------------------------------------
 library(tidyverse)
-library(dplyr)
 library(countrycode)
 library(zoo)
-
+library(dplyr)
 
 # Set working directory (if necessary) ------------------------------------
 
@@ -377,15 +376,38 @@ data <- data %>%
 df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
 
 
+# Population --------------------------------------------------------------
+
+data <- read.csv(file = './data/population_data.csv', stringsAsFactors = FALSE)
+
+data <- data %>%
+  dplyr::rename(Country = Country.Code, population = Population) %>%
+  mutate(population_millions = population/1000000) %>%
+  dplyr::select(Country, population_millions)
+
+
+df <- merge(x = df, y = data, by = c("Country"), all.x = TRUE)
+
+# Variable Scaling --------------------------------------------------------
+
+scaled_df <- df %>%
+  mutate(human_development_index = human_development_index * 100,
+         frac_DPI = frac_DPI * 100,
+         maj_DPI = maj_DPI * 100,
+         polity = polity * 100,
+         population_density_log = log(population_density),
+         gdp_per_capita_log = log(gdp_per_capita)
+         ) %>%
+  filter(!(Country %in% c("HKG", "CHN", "RUS", "ISL", "ISR", "TUR")))
+
+# new_vaccinations_smoothed_per_million_log = log(new_vaccinations_smoothed_per_million),
+# new_cases_smoothed_per_million_log = log(new_cases_smoothed_per_million),
+# new_deaths_smoothed_per_million_log = log(new_deaths_smoothed_per_million)
+
+
 # Save dataframe ----------------------------------------------------------
 
-test <- df %>%
-  filter(is.na(stock_change)) %>%
-  select(Country, Date, stock_change) %>%
-  group_by(Country) %>%
-  dplyr::summarise(total = n())
-
-write.csv(df,"./data/all_data.csv", row.names = FALSE)
+write.csv(scaled_df,"./data/all_data.csv", row.names = FALSE)
 
 # Other economic factors - *price_volatility
 # Political factors -  *political_stability_index, *civil_liberties
