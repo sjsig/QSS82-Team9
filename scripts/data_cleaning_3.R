@@ -398,7 +398,7 @@ scaled_df <- df %>%
          population_density_log = log(population_density),
          gdp_per_capita_log = log(gdp_per_capita)
          ) %>%
-  filter(!(Country %in% c("HKG", "CHN", "RUS", "ISL", "ISR", "TUR")))
+  filter(!(Country %in% c("HKG", "CHN", "RUS", "ISL", "ISR", "TUR", "ARG", "CAN", "PER", "SGP")))
 
 # new_vaccinations_smoothed_per_million_log = log(new_vaccinations_smoothed_per_million),
 # new_cases_smoothed_per_million_log = log(new_cases_smoothed_per_million),
