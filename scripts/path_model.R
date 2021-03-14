@@ -1,15 +1,14 @@
-# QSS Quarter Projects, Winter 2021. 
-# Prof. Robert
+# File Description --------------------------------------------------------
+## This file creates our path model visualization.
 
-# DAGs using ggdag. 
-# ggplot implementation of DAGs. 
-
+# Load Packages  ----------------------------------------------------------
 
 library(ggdag)
 library(tidyverse)
 library(ggrepel)
 
-# Our DAG
+
+# Create our DAG ----------------------------------------------------------
 
 covid_dag <- dagify(economics ~  compliance + economic_relief + politics + other_econ + covid_rates + lockdown_policy,
                     compliance ~ covid_rates + demographics + politics,
@@ -48,7 +47,8 @@ covid_dag %>%
   ggdag() +
   theme_dag()  
 
-# Turn the dag info into a nice table/tibble.
+
+# Turn the dag info into a nice table/tibble. -----------------------------
 
 tidycase <- covid_dag %>%
   tidy_dagitty(); tidycase
@@ -61,7 +61,8 @@ final_dag = tidycase %>%
   mutate(class = ifelse(name %in% c("economics"), "outcome", class)) %>%
   mutate(new_label = label)
 
-# Keep only unique labels 
+
+# Keep only unique labels  ------------------------------------------------
 
 for(l in 2:length(final_dag[["data"]][["label"]])-1){
   print(l)
@@ -72,7 +73,8 @@ for(l in 2:length(final_dag[["data"]][["label"]])-1){
 }
 
 
-# Make a new line type variable based on arrow direction variable.
+
+# Make a new line type variable based on arrow direction variable. --------
 
 final_dag %>%
   ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -85,6 +87,4 @@ final_dag %>%
                    max.overlaps = 20) + 
   theme_dag()
 
-# ggdag_status(covid_dag, text = FALSE, use_labels = "label", node_size = 16, text_size =3) +
-  # theme_dag()
 

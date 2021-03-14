@@ -1,19 +1,19 @@
+# File Description --------------------------------------------------------
+## This file runs our mediation and sensitivity analyses.
+
+
 # Load packages -----------------------------------------------------------
-# Probably most useful to do mediation analysis in...
+
 library(mediation)
-# Can also be done through...
-library(lavaan) # For latent variables and structural equations models. 
+library(lavaan)
 library(tidyverse)
-library( taRifx )
+library(taRifx)
 
 # Load data ---------------------------------------------------------------
 
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
-data <- japply( data, which(sapply(data, typeof)=="integer"), as.double )
-
-
-summary(data$stock_change)
+data <- japply( data, which(sapply(data, typeof)=="integer"), as.double ) # convert data type to double to enable regression
 
 data <- data %>%
   arrange(Country, Date) %>%
@@ -21,10 +21,8 @@ data <- data %>%
 
 
 # Create models ------------------------------------------------------------
-# mediation package accepts many different model types. 
 
-# Original model ----------------------------------------------------------
-
+# Mediating model ----------------------------------------------------------
 
 med.fit <- lm(stringency_ra ~
                 agriculture +
@@ -64,19 +62,15 @@ names(med.fit$coefficients) <- c("Intercept",
                              "Total Stimulus Spending as % of GDP",
                              "Healthcare Spending as % of GDP",
                              "New COVID-19 Vaccinations Per Million People",
-                             "GDP Per Capita (Log)",
+                             "GDP Per Capita",
                              "Polity Score",
                              "Hospital Beds per 1000 People",
                              "Population Density (Log)")
 
-
-
-
-
-
 summary(med.fit)
+xtable(summary(med.fit))
 
-
+# Outome Model ------------------------------------------------------------
 
 out.fit <- lm(stock_change ~ stringency_ra +
                 agriculture +
@@ -118,41 +112,13 @@ names(out.fit$coefficients) <- c("Intercept",
                              "Total Stimulus Spending as % of GDP",
                              "Healthcare Spending as % of GDP",
                              "New COVID-19 Vaccinations Per Million People",
-                             "GDP Per Capita (Log)",
+                             "GDP Per Capita",
                              "Polity Score",
                              "Hospital Beds per 1000 People",
                              "Population Density (Log)")
 
 summary(out.fit)
-
-
-# Step model (modified) ---------------------------------------------------
-
-med.fit <- lm(stringency_ra ~ services + polity + frac_DPI + human_development_index +
-                 residential + urban_pop + oil_price + hospital_beds_per_thousand + new_cases_smoothed_per_million + retail_and_recreation + stimulus_spending_pct_gdp, data = data)
-
-summary(med.fit)
-
-out.fit <- lm(stock_change ~ stringency_ra + services + polity + frac_DPI + human_development_index +
-                residential + urban_pop + oil_price + hospital_beds_per_thousand + new_cases_smoothed_per_million + retail_and_recreation + stimulus_spending_pct_gdp, data = data)
-
-summary(out.fit)
-
-
-
-# med.fit <- lm(stringency_ra ~ 
-#                 
-#                 new_cases_smoothed_per_million 
-#                 
-#               , data=data)
-# 
-# summary(med.fit)
-# 
-# out.fit <- lm(stock_change ~ stringency_ra +
-#                 new_cases_smoothed_per_million 
-#               , data=data)
-# 
-# summary(out.fit)
+xtable(summary(out.fit))
 
 
 # Mediation function ------------------------------------------------------
@@ -168,16 +134,10 @@ png("./plots/mediator_output.png", width=500, height=500)
 plot(med.out)
 dev.off()
 
-#ADE crossing zero and ACME not crossing zero -> estimated indirect effect is strong - effect of x on y is totally or partially mediated
-# check histograms, and if skewed consider logs of those variables and see how that runs (log of covid rates, try this out)
 
-
-# Sensitivity analysis. Test against possible uncontrolled confounders. 
-# Ignorability assumption. 
+# Sensitivity analysis. Test against possible uncontrolled confoun --------
 
 sens <- medsens(med.out) # throws error if coefficient names are updated in regressions
-
-# Plot of the sensitivity analysis. 
 
 png("./plots/sens_output_1.png", width=500, height=500)
 plot(sens)
