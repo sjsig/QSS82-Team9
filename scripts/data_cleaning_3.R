@@ -395,9 +395,7 @@ scaled_df <- df %>%
          frac_DPI = frac_DPI * 100,
          maj_DPI = maj_DPI * 100,
          polity = polity * 100,
-         population_density_log = log(population_density),
-         gdp_per_capita_log = log(gdp_per_capita)
-         ) %>%
+         population_density_log = log(population_density)) %>%
   filter(!(Country %in% c("HKG", "CHN", "RUS", "ISL", "ISR", "TUR", "ARG", "CAN", "PER", "SGP")))
 
 # new_vaccinations_smoothed_per_million_log = log(new_vaccinations_smoothed_per_million),

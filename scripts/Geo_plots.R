@@ -23,16 +23,13 @@ data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
 # Build coefficients dataset for regression---------------------------------------------------------------------
 
-## removed due to incomplete data
-data <- data %>%
-  filter(!Country %in% c("ARG", "CAN", "PER", "SGP"))
-
 countries <- unique(data$Country)
 
 coefficients <- data.frame()
 
+pvals <- list()
+
 for (country in countries){
-  print(country)
   country_data <- data %>%
     filter(Country == country)
 
@@ -44,13 +41,14 @@ for (country in countries){
               oil_price +
               new_vaccinations_smoothed_per_million, data=country_data)
 
+  print(country)
   print(summary(fit))
   
   coeff <- tidy(fit) %>%
     dplyr::select(term, estimate) %>%
     spread(term, estimate) %>%
     mutate(region = country)
-  
+
   coefficients <- rbind(coefficients, coeff)
   
 }

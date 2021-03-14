@@ -3,7 +3,6 @@ library(dplyr)
 data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 
 filtered_data <- data %>%
-  filter(!(Country %in% c("HKG", "CHN", "RUS", "ISL", "ISR", "TUR"))) %>%
   dplyr::select(-extreme_poverty, -new_tests_smoothed_per_thousand, -rural_pop, -urban_pop, -suburban_pop, -unemployment,
          -one_yr_unemp_bene, -two_mth_umemp_bene, -two_yr_unemp_bene, -six_mth_unemp_bene, -five_yr_unemp_bene,
          -BCI, -CLI, -CCI)
@@ -32,4 +31,5 @@ averages <- lapply(data, mean, na.rm = T)
 
 averages <- aggregate(filtered_data[, 5: 38], list(filtered_data$Country), mean, na.rm = TRUE)
 
-hist(averages$gdp_per_capita)
+
+boxplot(averages$stock_change)

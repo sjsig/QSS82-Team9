@@ -85,7 +85,7 @@ fit <- lm(stock_change ~ stringency_ra +
             stimulus_spending_pct_gdp +
             health_spending_pct_gdp +
             new_vaccinations_smoothed_per_million +
-            gdp_per_capita_log +
+            gdp_per_capita +
             polity +
             hospital_beds_per_thousand +
             population_density_log
@@ -137,7 +137,7 @@ fit <- lm(stock_change ~ stringency_ra +
             stimulus_spending_pct_gdp +
             health_spending_pct_gdp +
             new_vaccinations_smoothed_per_million +
-            gdp_per_capita_log +
+            gdp_per_capita +
             polity +
             hospital_beds_per_thousand +
             population_density_log
