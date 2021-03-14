@@ -108,7 +108,7 @@ names(fit$coefficients) <- c("Intercept",
                               "Total Stimulus Spending as % of GDP",
                               "Healthcare Spending as % of GDP",
                              "New COVID-19 Vaccinations Per Million People",
-                              "GDP Per Capita (Log)",
+                              "GDP Per Capita",
                                "Polity Score",
                                "Hospital Beds per 1000 People",
                                "Population Density (Log)")
