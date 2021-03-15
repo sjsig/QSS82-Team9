@@ -1,4 +1,9 @@
-## Stargazer Tables
+# File Description --------------------------------------------------------
+## This file creates our data tables to be used within our paper and the appendix..
+
+
+
+# Load packages -----------------------------------------------------------
 
 library(tibble)
 library(psych)

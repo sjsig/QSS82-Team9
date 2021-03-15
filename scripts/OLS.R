@@ -69,7 +69,7 @@ names(fit$coefficients) <- c("Intercept",
                                "Population Density (Log)")
 
 summary(fit)
-xtable(summary(fit))
+stargazer(fit)
 
 
 # Run normalized OLS regression -----------------------------------------------
