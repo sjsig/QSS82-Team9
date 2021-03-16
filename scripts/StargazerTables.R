@@ -9,19 +9,37 @@ library(tibble)
 library(psych)
 library(stargazer)
 library(tidyverse)
+library(dplyr)
+
+# Set working directory
 
 ## Loading in Data
-all_data <- read_csv(file = '/Users/williamwestbrook/Documents/QSS 82/QSS 82/data/all_data.csv' )
+all_data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
+all_data$Date <- as.Date(all_data$Date)
 
+
+all_data$Country <- factor(all_data$Country)
+
+all_data$Country <- revalue(all_data$Country, c("AUS" = "Australia", "AUT" = "Austria", "BEL" = "Belgium", "BRA" = "Brazil", 
+                                                "FIN" = "Finland", "FRA" = "France", "DEU" = "Germany", "GBR" = "Great Britain",
+                                                "IND" = "India", "IDN" = "Indonesia",  "IRL" = "Ireland", "ITA" = "Italy",
+                                                "LTU" = "Lithuania", "MEX" = "Mexico", "NLD" = "Netherlands", "NOR" = "Norway",
+                                                "NZL" = "New Zealand",   "PRT" = "Portugal", "ZAF" = "South Africa", "KOR" = "South Korea",  
+                                                "ESP" = "Spain", "SWE" = "Sweden", "CHE" = "Switzerland","USA" = "United States"))
+
+all_data$Country <- factor(all_data$Country,sort(levels(all_data$Country)))
+
+all_data <- all_data %>%
+  arrange(Country)
 ## Creating stringency data frame
 stringency <- all_data$stringency_ra
 stringency <- data.frame(stringency)
-colnames(stringency) <- "Government Stringency Index"
+colnames(stringency) <- "Lockdown Severity"
 
 ## Creating stock change data frame
 stocks <- all_data$stock_change
 stocks <- data.frame(stocks)
-colnames(stocks) <- "Percent Change in Stock Price"
+colnames(stocks) <- "Stock Returns (%)"
 
 ## Binding the two and entering them into stargazer
 stringency_stock_table <- cbind(stringency, stocks)
@@ -31,7 +49,7 @@ stargazer(stringency_stock_table)
 countrystringencydata <- all_data[,c("Country", "stringency_ra")]
 countrystringencydata <- countrystringencydata %>% 
   group_by(Country) %>%
-  mutate(rn = row_number()) %>%
+  dplyr::mutate(rn = row_number()) %>%
   pivot_wider(names_from = Country, values_from = stringency_ra)
 countrystringencydata <- countrystringencydata[,-1]
 countrystringencydata <- as.data.frame(countrystringencydata)
@@ -41,7 +59,7 @@ stargazer(countrystringencydata)
 countrystockdata <- all_data[,c("Country", "stock_change")]
 countrystockdata <- countrystockdata %>% 
   group_by(Country) %>%
-  mutate(rn = row_number()) %>%
+  dplyr::mutate(rn = row_number()) %>%
   pivot_wider(names_from = Country, values_from = stock_change)
 countrystockdata <- countrystockdata[,-1]
 countrystockdata <- as.data.frame(countrystockdata)
@@ -88,5 +106,5 @@ colnames(control_data) <- c("Agriculture Sector Share of GDP",
                             "Hospital Beds per 1000 People",
                             "Population Density (Log)")
 control_data <- as.data.frame(control_data)
-stargazer(control_data)
+stargazer(control_data, summary.stat = c("n", "mean", "sd"))
                               

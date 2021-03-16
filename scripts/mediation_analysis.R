@@ -130,7 +130,7 @@ xtable(summary(out.fit))
 med.out <- mediate(med.fit, out.fit, treat = "new_cases_smoothed_per_million", mediator = "stringency_ra", sims = 1000, boot = TRUE)
 
 summary(med.out)
-png("./plots/mediator_output.png", width=500, height=500)
+png("./final_plots/mediator_output.png", width=500, height=500)
 plot(med.out)
 dev.off()
 
@@ -139,11 +139,11 @@ dev.off()
 
 sens <- medsens(med.out) # throws error if coefficient names are updated in regressions
 
-png("./plots/sens_output_1.png", width=500, height=500)
+png("./final_plots/sens_output_1.png", width=500, height=500)
 plot(sens)
 dev.off()
 
-png("./plots/sens_output_2.png", width=500, height=500)
+png("./final_plots/sens_output_2.png", width=500, height=500)
 plot(sens, sens.par = "R2", r.type = "total", sign.prod = "positive")
 dev.off()
 
@@ -156,11 +156,11 @@ covid_median <- median(data$new_cases_smoothed_per_million, na.rm = TRUE)
 lockdown_mean <- mean(data$stringency_ra, na.rm = TRUE)
 lockdown_median <- median(data$stringency_ra, na.rm = TRUE)
 
-mean_mediator_effect <- 0.0061308 * covid_mean
-median_mediator_effect <- 0.0061308 * covid_median
+mean_mediator_effect <- 5.957e-03 * covid_mean
+median_mediator_effect <- 5.957e-03 * covid_median
 
-mean_output_effect <- 1.746e-02 * lockdown_mean
-median_output_effect <- 1.746e-02 * lockdown_median
+mean_output_effect <- 1.756e-02 * lockdown_mean
+median_output_effect <- 1.756e-02 * lockdown_median
 
 total_mean_indirect_effect <- mean_output_effect * mean_mediator_effect
 total_median_indirect_effect <- median_output_effect * median_mediator_effect
