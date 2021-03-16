@@ -24,8 +24,6 @@ data <- read.csv(file = "./data/all_data.csv", stringsAsFactors = FALSE)
 # Build coefficients dataset for regression---------------------------------------------------------------------
 
 ## removed due to incomplete data
-data <- data %>%
-  filter(!Country %in% c("ARG", "CAN", "PER", "SGP"))
 
 countries <- unique(data$Country)
 
@@ -37,7 +35,7 @@ for (country in countries){
     filter(Country == country)
 
   fit <- lm(stock_change ~ stringency_ra +
-              new_cases_smoothed_per_million + 
+              new_cases_smoothed_per_million +  
               new_deaths_smoothed_per_million +
               retail_and_recreation +
               residential +
@@ -46,12 +44,19 @@ for (country in countries){
 
   print(summary(fit))
   
-  coeff <- tidy(fit) %>%
-    dplyr::select(term, estimate) %>%
-    spread(term, estimate) %>%
-    mutate(region = country)
+  sum <- tidy(fit)
   
-  coefficients <- rbind(coefficients, coeff)
+  print(sum$p.value[sum$term == "stringency_ra"][1])
+  
+  if(sum$p.value[sum$term == "stringency_ra"][1] < .05){
+    coeff <- tidy(fit) %>%
+      dplyr::select(term, estimate) %>%
+      spread(term, estimate) %>%
+      mutate(region = country)
+    
+    coefficients <- rbind(coefficients, coeff)
+  }
+  
   
 }
   
