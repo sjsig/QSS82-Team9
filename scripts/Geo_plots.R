@@ -39,12 +39,26 @@ for (country in countries){
     filter(Country == country)
   
   fit <- lm(stock_change ~ stringency_ra +
-              new_cases_smoothed_per_million +  
+              agriculture +
+              industry +
+              manufacturing +
+              services +
+              frac_DPI +
+              aged_65_older +
+              new_cases_smoothed_per_million + 
               new_deaths_smoothed_per_million +
+              human_development_index +
               retail_and_recreation +
               residential +
               oil_price +
-              new_vaccinations_smoothed_per_million, data=country_data)
+              stimulus_spending_pct_gdp +
+              health_spending_pct_gdp +
+              new_vaccinations_smoothed_per_million +
+              gdp_per_capita +
+              polity +
+              hospital_beds_per_thousand +
+              population_density_log
+            , data=country_data)
   
   print(country)
   print(summary(fit))
@@ -53,17 +67,17 @@ for (country in countries){
   
   print(sum$p.value[sum$term == "stringency_ra"][1])
   
-  if(sum$p.value[sum$term == "stringency_ra"][1] < .05){
     coeff <- tidy(fit) %>%
       dplyr::select(term, estimate) %>%
       spread(term, estimate) %>%
-      mutate(region = country)
+      mutate(region = country) %>%
+      mutate(p.value = sum$p.value[sum$term == "stringency_ra"][1]) %>%
+      select(region, stringency_ra, p.value)
     
     coefficients <- rbind(coefficients, coeff)
   }
   
-  
-}
+
 
 
 
